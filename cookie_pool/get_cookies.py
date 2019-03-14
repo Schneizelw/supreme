@@ -45,11 +45,11 @@ class Generator():
             open website,input username and password finnally click it
         """
         self.browser.get(self.login_url)
-        time.sleep(1)
+        time.sleep(2)
         #点击登录
         button = self.browser.find_element_by_css_selector("#noLoginUser .nav-link a")
         button.click()
-        time.sleep(1)
+        time.sleep(2)
         #使用密码账号登录
         button = self.browser.find_element_by_css_selector("#loginTbs a:nth-child(2)")
         button.click()
@@ -121,5 +121,5 @@ class Generator():
 
 if __name__ == "__main__":
     g = Generator() 
-    g. save_cookies()
+    g.save_cookies()
     g.close()

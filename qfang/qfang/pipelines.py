@@ -5,17 +5,24 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
+from qfang.items import NewHouseItem, HouseTypeItem
 
 class QfangPipeline(object):
 
     def process_item(self, item, spider):
-        for key, value in item.items():
-            if value != None:
-                item[key] = value.strip()
-                item[key] = value.replace("\t","").replace("\n","")
-                item[key] = value.replace(" ","").replace("\r","")
-            if key == "property_charges":
-                value[-2] == "/"
+        if isinstance(item, NewHouseItem):
+            for key, value in item.items():
+                if value != None:
+                    item[key] = value.strip().replace("\t","").replace("\n","")\
+                    .replace(" ","").replace("\r","")
+                if key == "property_charges":
+                    item[key][-2] == "/"
+        if isinstance(item, HouseTypeItem):
+            for index, data in enumerate(item["house_type"]):
+                item["house_type"][index]["price"] = data["price"]
+                item["house_type"][index]["base_info"] = data["base_info"].strip()
+                item["house_type"][index]["area"] = data["area"].\
+                replace("建筑面积", "").replace("平米", "m2")
         return item
 
 class MongoPipeline():
@@ -36,12 +43,18 @@ class MongoPipeline():
         self.db = self.client[self.mongo_db]
 
     def process_item(self, item, spider):
-        self.db[item.__class__.__name__].update(
-            {"_id": item["_id"]},
-            {"$setOnInsert": dict(item)},
-            upsert=True
-        )
-        #self.db[self.collection].insert(dict(item))
+        if isinstance(item, NewHouseItem):
+            self.db[item.collection].update(
+                {"_id" : item["_id"]},
+                {"$set" : dict(item)},
+                True
+            )  
+        if isinstance(item, HouseTypeItem):
+            self.db[item.collection].update(
+                {"_id" : item["_id"]},
+                {"$set" : {"house_type" : list(item["house_type"])}},
+                True
+            )
         return item
 
     def close_spider(self, spider):

@@ -44,7 +44,7 @@ class QfangCheck(Check):
             else:
                 print("response code %s" % response.status_code)
                 print("response header %s" % response.headers)
-                self.cookie_db.delete(username)
+                self.cookies_db.delete(username)
         except ConnectionError as e:
             print("error : %s" % str(e))
             
