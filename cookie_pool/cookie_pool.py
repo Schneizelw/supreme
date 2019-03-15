@@ -1,6 +1,6 @@
 import time
 from cookie_server import app
-from check_cookies import QfangCheck
+from check_cookies import WebCheck
 from get_cookies import Generator
 from multiprocessing import Process
 
@@ -12,12 +12,18 @@ GENERATOR_OPEN = True
 CHECK_OPEN = True
 SERVER_OPEN = True
 
+cookies_list = [
+#    "qfang",
+    "lianjia"
+]
+
 class CookiePool():
-    
+
     @staticmethod
     def check_cookies():
         while True:
-            check = QfangCheck()
+            for site in cookies_list:
+                check = WebCheck(site)
             try:
                 check.check()
                 time.sleep(CHECK_CYCLE)
@@ -27,7 +33,8 @@ class CookiePool():
     @staticmethod
     def generate_cookies():
         while True:
-            generator = Generator()
+            for site in cookies_list:
+                generator = Generator(site)
             try:
                 generator.save_cookies()
                 time.sleep(GENERATE_CYCLE)

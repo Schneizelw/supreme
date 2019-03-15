@@ -15,14 +15,13 @@ BOT_NAME = 'qfang'
 SPIDER_MODULES = ['qfang.spiders']
 NEWSPIDER_MODULE = 'qfang.spiders'
 # 请求获取cookie的url
-COOKIE_URL = "http://47.106.235.179:8051/cookie"
+COOKIE_URL = "http://47.106.235.179:8051/qfang"
 # 请求获取proxy的url
 PROXY_URL = "http://47.106.235.179:8050/proxy"
 # mongodb配置
 MONGO_URI = "47.106.235.179"
 #MONGO_URI = "localhost"
 MONGO_DB = "qfang"
-COLLECTION = "house"
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html

@@ -9,19 +9,19 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class Generator():
     
-    def __init__(self):
+    def __init__(self, hostname):
         """
             connect redis get cookies map and username map
             and init browser(use selenium)
         """
-        fd = open("conf/website_config.json", "r")
+        fd = open("conf/%s_website.json" % hostname, "r")
         tmp = fd.read()
         data = json.loads(tmp)
         self.website = data["website_name"]
         self.login_url = data["login_url"]
         self.cookies_db = RedisClient('cookies', self.website)
         self.users_db = RedisClient('users', self.website)
-        #self.users_db.set("15320347357","123456wyq")
+        self.users_db.set("15320347357","123456wyq")
         #self.users_db.set("15320343017","123456wyq")
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--no-sandbox')
@@ -40,9 +40,37 @@ class Generator():
             res[item["name"]] = item["value"]
         return res
     
-    def open(self, username, password):
+    def open_lianjia(self, username, password):
         """
-            open website,input username and password finnally click it
+            open website,input username and password finally click it
+        """
+        self.browser.get(self.login_url)
+        time.sleep(2)
+        #点击登录
+        button = self.browser.find_element_by_css_selector("a.btn-login.bounceIn.actLoginBtn")
+        button.click()
+        time.sleep(2)
+        #使用密码账号登录
+        button = self.browser.find_element_by_css_selector("#con_login_user_tel a.tologin")
+        button.click()
+        username_input = self.wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "input.the_input.topSpecial.users")
+        ))
+        password_input = self.wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "input.the_input.password")
+        ))
+        loginSubmit = self.wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, ".li_btn a.login-user-btn")
+        ))
+        #输入账号密码login
+        username_input.send_keys(username)
+        password_input.send_keys(password)
+        loginSubmit.click()
+        time.sleep(3)
+
+    def open_qfang(self, username, password):
+        """
+            open linajia,input username and password finally click it
         """
         self.browser.get(self.login_url)
         time.sleep(2)
@@ -68,11 +96,11 @@ class Generator():
         loginSubmit.click()
         time.sleep(3)
 
-    def new_cookie(self, username, password):
+    def new_cookie_qfang(self, username, password):
         """
             request website,login and get cookie
         """
-        self.open(username, password)
+        self.open_qfang(username, password)
         #确认是否登录成功
         check = self.browser.find_element_by_css_selector("#loginOrUserName a.frontUserName")
         text = check.text
@@ -85,6 +113,22 @@ class Generator():
             res["data"] = "login failed"
         return res
  
+            
+    def new_cookie_lianjia(self, username, password):
+        """
+            request lianjia,login and get cookie
+        """
+        self.open_lianjia(username, password)
+        check = self.browser.find_element_by_css_selector(".ti-hover .typeShowUser a:link")
+        res = {}
+        if "1" in check.text:
+            res["code"] = 1
+            res["data"] = self.browser.get_cookies()
+        else:
+            res["code"] = -1
+            res["data"] = "login failed"
+        return res
+        
     def save_cookies(self):
         """
             get all cookies and save
@@ -96,8 +140,13 @@ class Generator():
         for user in all_users:
             if user not in done_users:
                 pw = self.users_db.get(user)
-                print("get %s cookie..." % user)
-                result = self.new_cookie(user, pw)
+                print("get cookie user:%s,website:%s..." % (user, self.website) )
+                if self.website == "qfang":
+                    result = self.new_cookie_qfang(user, pw)
+                elif self.website == "lianjia":
+                    result =self.new_cookie_lianjia(user, pw)
+                else:
+                    print("not support this website")
                 if result["code"] == 1:
                     cookie = self.get_cookie_dict(result["data"])
                     self.cookies_db.set(user, json.dumps(cookie))
@@ -120,6 +169,6 @@ class Generator():
         self.browser.close()
 
 if __name__ == "__main__":
-    g = Generator() 
+    g = Generator("lianjia") 
     g.save_cookies()
     g.close()

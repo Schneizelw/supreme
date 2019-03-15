@@ -7,18 +7,27 @@ app = Flask(__name__)
 def index():
     return "<h2>hello world</h2>"
 
-def get_conn():
-    if not hasattr(g, 'redis'):
-        g.redis = RedisClient("cookies","qfang")
+def get_conn(website):
+    if not hasattr(g, website):
+        g.redis = RedisClient("cookies", website)
     return g.redis
 
-@app.route("/cookie")
-def get_cookie():
+@app.route("/lianjia")
+def get_lianjia_cookie():
     """
         get cookie
     """
-    conn = get_conn()
+    conn = get_conn("lianjia")
     return conn.get_cookie()
     
+@app.route("/qfang")
+def get_qfang_cookie():
+    """
+        get cookie
+    """
+    conn = get_conn("qfang")
+    return conn.get_cookie()
+    
+
 
 
