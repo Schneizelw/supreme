@@ -108,8 +108,8 @@ class LianjiacomSpider(Spider):
         #获取到最后一页的页码
         last_page = math.ceil(tot/float(10))
         #遍历每一主页
-        #for num in range(1, 1 + last_page):
-        for num in range(1, 2):
+        for num in range(1, 1 + last_page):
+        #for num in range(1, 2):
             page = "pg" + str(num)
             url = self.lianjia_url.format(city=city, page=page)
             print(url)
