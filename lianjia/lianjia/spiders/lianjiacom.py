@@ -5,6 +5,8 @@ import math
 import scrapy
 import requests
 from scrapy import Request, Spider
+from scrapy.selector import Selector
+from scrapy_splash import SplashRequest
 from lianjia.items import NewHouseItem, BasicInfoItem
 from lianjia.items import PlanInfoItem, AroundInfoItem
 
@@ -20,21 +22,28 @@ class LianjiacomSpider(Spider):
     def start_requests(self):
         BEGIN = "pg1"
         for city in self.cities:
-            yield Request(self.lianjia_url.format(city=city, page=BEGIN), meta={"city" : city},
-                callback = self.parse_start, dont_filter=True)
+            yield Request(
+                self.lianjia_url.format(city=city, page=BEGIN), 
+                meta={
+                    "city" : city
+                },
+                callback = self.parse_start, 
+                dont_filter=True
+            )
 
     def parse_single(self, response):
         new_house = NewHouseItem()
         plan_info = PlanInfoItem()
         basic_info = BasicInfoItem()
         around_info = AroundInfoItem()
-        city = response.meta["city"]
-        page_id = response.meta["_id"]
+        city = response.data["city"]
+        page_id = response.data["_id"]
         new_house["_id"] = page_id
-        new_house["url"] = response.meta["url"]
+        new_house["url"] = response.data["url"]
         yield new_house
         # init basic_info
-        tmp = response.css(".container .fl.l-txt a")
+        html = Selector(text=response.data["html"])
+        tmp = html.css(".container .fl.l-txt a")
         basic_info["name"] = tmp[-2].css("a::text").extract_first()
         lis = response.css(".big-left.fl ul.x-box li")
         basic_info["_id"] = page_id
@@ -49,7 +58,7 @@ class LianjiacomSpider(Spider):
 
         # init plan_info
         plan_info["_id"] = page_id
-        tmp = response.css(".big-left.fl ul")
+        tmp = html.css(".big-left.fl ul")
         lis = tmp[2].css("li")
         plan_info["building_type"] = lis[0].css("span.label-val::text").extract_first()
         plan_info["green_ratio"] = lis[1].css("span.label-val::text").extract_first()
@@ -62,7 +71,7 @@ class LianjiacomSpider(Spider):
 
         #init around_info
         around_info["_id"] = page_id
-        tmp = response.css(".big-left.fl ul")
+        tmp = html.css(".big-left.fl ul")
         lis = tmp[3].css("li")
         around_info["property_company"] = lis[0].css("span.label-val::text").extract_first()
         around_info["property_price"] = lis[2].css("span.label-val::text").extract_first()
@@ -82,12 +91,32 @@ class LianjiacomSpider(Spider):
                 text = span.css("span::text").extract_first()
                 tmp.append(text)
             around_info[entity_map[str(i)]] = tmp 
-        yield around_info
-        
+        yield around_info        
 
     def parse_main(self, response):
         city = response.meta["city"]
         XIANGQING = "xiangqing"
+        lua_script = """
+            function main(splash, args)
+                local url = args.url
+                splash:init_cookies(args.cookies)
+                splash:set_user_agent(splash.args.user_agent)
+                splash:on_request(function(request)
+                    request:set_proxy{
+                        host = args.host,
+                        port = args.port
+                    }
+                end)
+                splash:go(url)
+                splash:wait(args.wait)
+                return {
+                    html=splash:html(),
+                    url=args.url,
+                    city=args.city,
+                    _id=args._id,
+                }
+            end
+        """
         lis = response.css("ul.resblock-list-wrapper li")
         for li in lis:
             try:
@@ -96,8 +125,22 @@ class LianjiacomSpider(Spider):
                 url = url + path + XIANGQING
                 page_id = path[8:-1]
                 print(url)
-                yield Request(url=url, meta={"url" : url, "city" : city, "_id" : page_id}, 
-                    callback=self.parse_single, dont_filter=True)
+                yield SplashRequest(
+                    url, 
+                    self.parse_single, 
+                    args={
+                        "_id" : page_id,
+                        "url" : url,
+                        "city" : city,
+                        "lua_source" : lua_script,
+                        'wait' : 0.6,
+                        'host' : '',
+                        'port' : '',
+                        'cookies' : '',
+                        'user_agent' : '',
+                    }, 
+                    endpoint="execute"
+                )
             except Exception as e:
                 print("[ERROR]parse_main err %s" % str(e))
 
@@ -108,9 +151,16 @@ class LianjiacomSpider(Spider):
         #获取到最后一页的页码
         last_page = math.ceil(tot/float(10))
         #遍历每一主页
-        for num in range(1, 1 + last_page):
-        #for num in range(1, 2):
+        for num in range(1, 2):
+        #for num in range(1, 1 + last_page):
             page = "pg" + str(num)
             url = self.lianjia_url.format(city=city, page=page)
             print(url)
-            yield Request(url=url, meta={"city" : city}, callback=self.parse_main, dont_filter=True)
+            yield Request(
+                url=url, 
+                meta={
+                    "city" : city
+                },
+                callback=self.parse_main, 
+                dont_filter=True
+            )

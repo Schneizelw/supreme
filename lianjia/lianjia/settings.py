@@ -17,21 +17,26 @@ NEWSPIDER_MODULE = 'lianjia.spiders'
 # 请求获取cookie的url
 COOKIE_URL = "http://47.106.235.179:8051/lianjia"
 # 请求获取proxy的url
-PROXY_URL = "http://47.106.235.179:8050/proxy"
+PROXY_URL = "http://47.106.235.179:8052/proxy"
+# 渲染js splashurl
+SPLASH_URL = "http://47.106.235.179:8050/"
 # mongodb配置
 MONGO_URI = "47.106.235.179"
 #MONGO_URI = "localhost"
 MONGO_DB = "lianjia"
-
 #selenium middleware use it 
 SELENIUM_TIMEOUT = 20
+
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    "lianjia.middlewares.CookiesMiddleware": 544,
-    "lianjia.middlewares.ProxyMiddleware": 545,
-    "lianjia.middlewares.UserAgentMiddleware": 546,
-    "lianjia.middlewares.SeleniumMiddleware": 547,
+    "scrapy_splash.SplashCookiesMiddleware": 723,
+    "scrapy_splash.SplashMiddleware": 725,
+    "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": 810,
+    "lianjia.middlewares.CookiesMiddleware": 750,
+    "lianjia.middlewares.ProxyMiddleware": 751,
+    "lianjia.middlewares.UserAgentMiddleware": 752,
+    #"lianjia.middlewares.SeleniumMiddleware": 547,
 }
 
 # Configure item pipelines
@@ -39,6 +44,10 @@ DOWNLOADER_MIDDLEWARES = {
 ITEM_PIPELINES = {
     'lianjia.pipelines.LianjiaPipeline': 300,
     'lianjia.pipelines.MongoPipeline': 400,
+}
+
+SPIDER_MIDDLEWARES = {
+    "scrapy_splash.SplashDeduplicateArgsMiddleware": 100    
 }
 
 # 使用scrapy_redis调度器类
@@ -51,4 +60,9 @@ SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"
 REDIS_HOST = "47.106.235.179"
 REDIS_PORT = "6379"
 REDIS_PASSWORD = None
+
+# splash 去重
+#DUPFILTER_CLASS = "scrapy_splash.SplashAwareDupeFilter" 
+# 配置splash的cache
+HTTPCACHE_STORAGE = "scrapy_splash.SplashAwareFSCacheStorage"
 

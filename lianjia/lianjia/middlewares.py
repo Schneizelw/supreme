@@ -44,10 +44,12 @@ class CookiesMiddleware():
         """
         cookie = self.get_cookie()
         if cookie:
-            #设置cookie
-            request.cookies = cookie
-            print("succ set cookie")
-
+            if request.url[-7:] != "execute":
+                #设置cookie
+                request.cookies = cookie
+                print("succ set cookie")
+            else:
+                request.meta["splash"]["args"]["cookies"] = cookie
 
 class ProxyMiddleware():
     
@@ -61,7 +63,6 @@ class ProxyMiddleware():
 
     def get_proxy(self):
         try:
-            print(self.proxy_url)
             res = requests.get(self.proxy_url)
             if res.status_code == 200:
                 proxy = res.text
@@ -71,12 +72,17 @@ class ProxyMiddleware():
             return False
 
     def process_request(self, request, spider):
-        if request.meta.get("retry_times"):
-            proxy = self.get_proxy()
-            if proxy:
+        proxy = self.get_proxy()
+        if proxy:
+            if request.url[-7:] != "execute":
                 uri = "https://{proxy}".format(proxy=proxy)
+                print(uri)
                 request.meta["proxy"] = uri
                 print("succ set proxy")
+            else:
+                res = proxy.split(":")
+                request.meta["splash"]["args"]["host"] = res[0]
+                request.meta["splash"]["args"]["port"] = res[1]
 
 
 class UserAgentMiddleware():
@@ -96,8 +102,11 @@ class UserAgentMiddleware():
         ]
 
     def process_request(self, request, spider):
-        request.headers["User-Agent"] = random.choice(self.user_agents)
-
+        if request.url[-7:] != "execute":
+            request.headers["User-Agent"] = random.choice(self.user_agents)
+        else:
+            request.meta["splash"]["user_agent"] = random.choice(self.user_agents)
+            
 
 class SeleniumMiddleware():
     

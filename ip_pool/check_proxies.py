@@ -7,7 +7,7 @@ from concurrent.futures._base import TimeoutError
 from aiohttp.client_exceptions import ServerDisconnectedError
 from aiohttp.client_exceptions import ClientResponseError
 VALID_STATUS_CODES = [200]
-CHECK_URL = "https://shenzhen.qfang.com/"
+CHECK_URL = "https://sz.fang.lianjia.com/loupan/nhs1pg1"
 CHECK_SIZE = 50
 
 class Check():
@@ -43,6 +43,10 @@ class Check():
                 tasks = [self.check_single(proxy) for proxy in check_proxies]
                 #把多个写成放进一个事件循环
                 loop.run_until_complete(asyncio.wait(tasks))
-                time.sleep(5)
         except Exception as e:
             print("check err: %s" % str(e))
+
+
+if __name__ == "__main__":
+    obj = Check()
+    obj.check()

@@ -15,14 +15,14 @@ class LianjiaPipeline(object):
             item["basic_info"] = {}
             item["plan_info"] = {}
             item["around_info"] = {}
-        if isinstance(item, BasicInfoItem):
+        elif isinstance(item, BasicInfoItem):
             item["price"] = item["price"].replace("均价", "").strip()
             item["tag"] = item["tag"].strip().split(" ")
-        if isinstance(item, PlanInfoItem):
+        elif isinstance(item, PlanInfoItem):
             for k, v in item.items():
                 if v is not None and isinstance(v, str):
                     item[k] = v.strip()
-        if isinstance(item, AroundInfoItem):
+        elif isinstance(item, AroundInfoItem):
             for k, v in item.items():
                 if v is not None and isinstance(v, str):
                     item[k] = v.strip().replace("\n", "").replace(" ", "").replace("；","")
