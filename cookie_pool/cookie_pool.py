@@ -35,13 +35,13 @@ class CookiePool():
         while True:
             for site in cookies_list:
                 generator = Generator(site)
-            try:
-                generator.save_cookies()
-                generator.close()
-                time.sleep(GENERATE_CYCLE)
-            except Exception as e:
-                generator.close()
-                print("generate cookies err %s" % str(e))
+                try:
+                    generator.save_cookies()
+                    generator.close()
+                    time.sleep(GENERATE_CYCLE)
+                except Exception as e:
+                    generator.close()
+                    print("generate cookies err %s" % str(e))
 
     @staticmethod
     def cookies_server():

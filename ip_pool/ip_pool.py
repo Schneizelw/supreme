@@ -5,9 +5,9 @@ from check_proxies import Check
 from multiprocessing import Process
 
 SAVE_CYCLE_TIME = 3600
-CHECK_CYCLE_TIME = 60
+CHECK_CYCLE_TIME = 30
 
-SAVE_OPEN = True
+SAVE_OPEN = False
 CHECK_OPEN = True
 SERVER_OPEN = True
 

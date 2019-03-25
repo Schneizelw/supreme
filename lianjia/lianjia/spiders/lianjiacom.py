@@ -4,6 +4,7 @@ import time
 import math
 import scrapy
 import requests
+import logging
 from scrapy import Request, Spider
 from scrapy.selector import Selector
 from scrapy_splash import SplashRequest
@@ -11,6 +12,7 @@ from lianjia.items import NewHouseItem, BasicInfoItem
 from lianjia.items import PlanInfoItem, AroundInfoItem
 
 class LianjiacomSpider(Spider):
+
     city = ""
     cities = ["sz"]
     name = 'lianjiacom'
@@ -22,6 +24,7 @@ class LianjiacomSpider(Spider):
     def start_requests(self):
         BEGIN = "pg1"
         for city in self.cities:
+            print(self.lianjia_url.format(city=city, page=BEGIN))
             yield Request(
                 self.lianjia_url.format(city=city, page=BEGIN), 
                 meta={
@@ -30,7 +33,7 @@ class LianjiacomSpider(Spider):
                 callback = self.parse_start, 
                 dont_filter=True
             )
-
+    
     def parse_single(self, response):
         new_house = NewHouseItem()
         plan_info = PlanInfoItem()
@@ -40,6 +43,7 @@ class LianjiacomSpider(Spider):
         page_id = response.data["_id"]
         new_house["_id"] = page_id
         new_house["url"] = response.data["url"]
+        print(response.data["url"])
         yield new_house
         # init basic_info
         html = Selector(text=response.data["html"])
@@ -94,6 +98,7 @@ class LianjiacomSpider(Spider):
         yield around_info        
 
     def parse_main(self, response):
+        
         city = response.meta["city"]
         XIANGQING = "xiangqing"
         lua_script = """
@@ -124,22 +129,22 @@ class LianjiacomSpider(Spider):
                 url = self.base_url.format(city=city)
                 url = url + path + XIANGQING
                 page_id = path[8:-1]
-                print(url)
                 yield SplashRequest(
                     url, 
                     self.parse_single, 
                     args={
+                        "lua_source" : lua_script,
                         "_id" : page_id,
                         "url" : url,
                         "city" : city,
-                        "lua_source" : lua_script,
-                        'wait' : 0.6,
+                        'wait' : 2,
                         'host' : '',
                         'port' : '',
                         'cookies' : '',
                         'user_agent' : '',
                     }, 
-                    endpoint="execute"
+                    endpoint="execute",
+                    dont_filter=False
                 )
             except Exception as e:
                 print("[ERROR]parse_main err %s" % str(e))
@@ -151,16 +156,16 @@ class LianjiacomSpider(Spider):
         #获取到最后一页的页码
         last_page = math.ceil(tot/float(10))
         #遍历每一主页
-        for num in range(1, 2):
-        #for num in range(1, 1 + last_page):
+        #for num in range(1, 4):
+        for num in range(1, 1 + last_page):
             page = "pg" + str(num)
             url = self.lianjia_url.format(city=city, page=page)
-            print(url)
             yield Request(
                 url=url, 
                 meta={
                     "city" : city
                 },
                 callback=self.parse_main, 
-                dont_filter=True
+                dont_filter=False
             )
+

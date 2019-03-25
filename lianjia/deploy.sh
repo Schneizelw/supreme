@@ -1,32 +1,44 @@
 #!/bin/bash
 
+hosts=(47.103.1.31 47.106.235.179)
+
 function start() {
-    hosts=(47.103.1.31 47.106.235.179)
     for host in ${hosts[@]}
         do
             result=$(curl http://$host:6800/schedule.json -d project=lianjia -d spider=lianjiacom)
             status=$(echo "$result" | jq '.status')
-            if ["$status" == "ok"]
-            then
+            echo $status
+            if [ "$status"x = "\"ok\""x ];then
                 jobid=$(echo "$result" | jq '.jobid')
-                echo jobid >> jobids.txt
-            else
-                echo "$result"
+                jobid=$(echo $jobid | sed "s/\"//g")
+                echo $jobid >> jobids.txt 
             fi
+            echo "$result"
         done
 }
 
 function cancel() {
-    hosts=(47.103.1.31 47.106.235.179)
     jobids=()
     n=${#hosts[@]}
-    for jobid in "tail -n '$n' jobids.txt"
+    for jobid in $(tail -n $n jobids.txt)
         do
-            jobids[${#jobids[*]}]=jobid
+            jobids[${#jobids[*]}]=$jobid
         done
     for i in "${!hosts[@]}" 
         do
-            result=$(curl http://${hosts[$i]}:6800/cancel.json -d project=lianjia -d job=${jobids[$i]})
+            echo ${hosts[$i]}
+            echo ${jobids[$i]}
+            cmd="http://${hosts[$i]}:6800/cancel.json -d project=lianjia -d job=${jobids[$i]}"
+            echo $cmd
+            result=$(curl $cmd)
+            echo "$result"
+        done
+}
+
+function status() {
+    for host in ${hosts[@]}
+        do
+            result=$(curl http://$host:6800/daemonstatus.json)
             echo "$result"
         done
 }
@@ -42,6 +54,7 @@ function deploy_local() {
     #部署到vm1对应到的机器
     result=$(scrapyd-deploy vm1)
     echo "$result" | jq '.status'
+    echo "$result"
 }
 
 function start_local() {
@@ -64,6 +77,7 @@ function usage() {
     echo "  bash $0 deploy       将spider部署到所有服务器"
     echo "  bash $0 start        打开所有机器上的spider"
     echo "  bash $0 cancel       取消所有的spider"
+    echo "  bash $0 stataus      查看任务状态"
 }
 
 function main() {
@@ -74,6 +88,7 @@ function main() {
         "deploy") deploy;;
         "start") start;;
         "cancel") cancel;;
+        "status") status;;
         *) usage;;
     esac
 }

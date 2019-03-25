@@ -1,3 +1,4 @@
+import os
 import json
 import time
 from selenium import webdriver
@@ -21,7 +22,7 @@ class Generator():
         self.login_url = data["login_url"]
         self.cookies_db = RedisClient('cookies', self.website)
         self.users_db = RedisClient('users', self.website)
-        self.users_db.set("15320347357","123456wyq")
+        #self.users_db.set("15320347357","123456wyq")
         #self.users_db.set("15320343017","123456wyq")
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--no-sandbox')
@@ -166,7 +167,8 @@ class Generator():
         return cookie
 
     def close(self):
-        self.browser.close()
+        self.browser.quit()
+        os.system('pkill chromedriver')
 
 if __name__ == "__main__":
     g = Generator("lianjia") 

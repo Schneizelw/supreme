@@ -11,4 +11,5 @@ scrapy
 scrapyd
 scrapyd-client
 scrapy-redis
+scrapy-splash
 

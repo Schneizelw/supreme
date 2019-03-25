@@ -8,6 +8,7 @@
 import json
 import time
 import random
+import logging
 import requests
 from scrapy import signals
 from scrapy.http import HtmlResponse
@@ -146,4 +147,5 @@ class SeleniumMiddleware():
         except TimeoutException:
             print("drop this page %s" % url)
             return None
-       
+      
+

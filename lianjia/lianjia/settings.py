@@ -50,6 +50,8 @@ SPIDER_MIDDLEWARES = {
     "scrapy_splash.SplashDeduplicateArgsMiddleware": 100    
 }
 
+# 爬完后情况去重set和request list
+#SCHEDULER_PERSIST = True
 # 使用scrapy_redis调度器类
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 # 使用scrapy_redis的去重类
@@ -61,8 +63,10 @@ REDIS_HOST = "47.106.235.179"
 REDIS_PORT = "6379"
 REDIS_PASSWORD = None
 
-# splash 去重
-#DUPFILTER_CLASS = "scrapy_splash.SplashAwareDupeFilter" 
 # 配置splash的cache
 HTTPCACHE_STORAGE = "scrapy_splash.SplashAwareFSCacheStorage"
 
+# log 设置
+LOG_LEVER = "WARNING"
+LOG_STDOUT = True
+#LOG_ENABLED = False
