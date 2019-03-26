@@ -14,7 +14,10 @@ from lianjia.items import PlanInfoItem, AroundInfoItem
 class LianjiacomSpider(Spider):
 
     city = ""
-    cities = ["sz"]
+    cities = [
+        "sz", "sh", "bj", "gz",
+        #"cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg"
+    ]
     name = 'lianjiacom'
     allowed_domains = ['lianjia.com']
 
@@ -42,6 +45,7 @@ class LianjiacomSpider(Spider):
         city = response.data["city"]
         page_id = response.data["_id"]
         new_house["_id"] = page_id
+        new_house["city"] = city
         new_house["url"] = response.data["url"]
         print(response.data["url"])
         yield new_house
@@ -104,6 +108,7 @@ class LianjiacomSpider(Spider):
         lua_script = """
             function main(splash, args)
                 local url = args.url
+                splash.images_enabled = false
                 splash:init_cookies(args.cookies)
                 splash:set_user_agent(splash.args.user_agent)
                 splash:on_request(function(request)

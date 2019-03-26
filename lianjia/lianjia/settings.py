@@ -51,13 +51,18 @@ SPIDER_MIDDLEWARES = {
 }
 
 # 爬完后情况去重set和request list
-#SCHEDULER_PERSIST = True
+SCHEDULER_PERSIST = True
 # 使用scrapy_redis调度器类
-SCHEDULER = "scrapy_redis.scheduler.Scheduler"
-# 使用scrapy_redis的去重类
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+#SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 # 使用scrapy_redis队列的先进先出队列
-SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"
+#SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"
+
+# bloomfilter去重类
+DUPEFILTER_CLASS = "scrapy_redis_bloomfilter.dupefilter.RFPDupeFilter"
+# 散列函数个数
+BLOOMFILTER_HASH_NUMBER = 7
+# bit参数
+BLOOMFILTER_BIT = 30
 # redis配置
 REDIS_HOST = "47.106.235.179"
 REDIS_PORT = "6379"
@@ -66,7 +71,3 @@ REDIS_PASSWORD = None
 # 配置splash的cache
 HTTPCACHE_STORAGE = "scrapy_splash.SplashAwareFSCacheStorage"
 
-# log 设置
-LOG_LEVER = "WARNING"
-LOG_STDOUT = True
-#LOG_ENABLED = False

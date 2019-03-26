@@ -12,4 +12,4 @@ scrapyd
 scrapyd-client
 scrapy-redis
 scrapy-splash
-
+scrapy-redis-bloomfilter

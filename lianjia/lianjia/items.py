@@ -13,6 +13,7 @@ class NewHouseItem(Item):
     collection = "newHouse"
     _id = Field()         # 楼盘id
     url = Field()         # url
+    city = Field()        # 城市
     basic_info = Field()  # 基本信息
     plan_info = Field()   # 规划信息
     around_info = Field() # 配套信息

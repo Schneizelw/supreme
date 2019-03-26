@@ -7,7 +7,7 @@ from multiprocessing import Process
 SAVE_CYCLE_TIME = 3600
 CHECK_CYCLE_TIME = 30
 
-SAVE_OPEN = False
+SAVE_OPEN = True
 CHECK_OPEN = True
 SERVER_OPEN = True
 

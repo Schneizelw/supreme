@@ -73,17 +73,20 @@ class ProxyMiddleware():
             return False
 
     def process_request(self, request, spider):
-        proxy = self.get_proxy()
-        if proxy:
             if request.url[-7:] != "execute":
-                uri = "https://{proxy}".format(proxy=proxy)
-                print(uri)
-                request.meta["proxy"] = uri
-                print("succ set proxy")
+                if request.meta.get('retry_times'):
+                    proxy = self.get_proxy()
+                    if proxy:
+                        uri = "https://{proxy}".format(proxy=proxy)
+                        print(uri)
+                        request.meta["proxy"] = uri
+                        print("succ set proxy")
             else:
-                res = proxy.split(":")
-                request.meta["splash"]["args"]["host"] = res[0]
-                request.meta["splash"]["args"]["port"] = res[1]
+                proxy = self.get_proxy()
+                if proxy:
+                    res = proxy.split(":")
+                    request.meta["splash"]["args"]["host"] = res[0]
+                    request.meta["splash"]["args"]["port"] = res[1]
 
 
 class UserAgentMiddleware():

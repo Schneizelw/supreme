@@ -1,6 +1,7 @@
 #!/bin/bash
 
-hosts=(47.103.1.31 47.106.235.179)
+#hosts=(47.103.1.31 47.106.235.179)
+hosts=(47.103.1.31)
 
 function start() {
     for host in ${hosts[@]}
@@ -43,6 +44,15 @@ function status() {
         done
 }
 
+
+function delproject() {
+    for host in ${hosts[@]}
+        do
+            result=$(curl http://$host:6800/delproject.json -d project=lianjia)
+            echo "$result"
+        done
+}
+
 function deploy() {
     #部署到全部机器
     result=$(scrapyd-deploy -a)
@@ -78,6 +88,7 @@ function usage() {
     echo "  bash $0 start        打开所有机器上的spider"
     echo "  bash $0 cancel       取消所有的spider"
     echo "  bash $0 stataus      查看任务状态"
+    echo "  bash $0 delproject   删除项目"
 }
 
 function main() {
@@ -89,6 +100,7 @@ function main() {
         "start") start;;
         "cancel") cancel;;
         "status") status;;
+        "delproject") delproject;;
         *) usage;;
     esac
 }
