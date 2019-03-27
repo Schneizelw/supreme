@@ -15,7 +15,8 @@ class LianjiacomSpider(Spider):
 
     city = ""
     cities = [
-        "sz", "sh", "bj", "gz",
+        "sz", 
+        #"sh", "bj", "gz",
         #"cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg"
     ]
     name = 'lianjiacom'
@@ -42,14 +43,14 @@ class LianjiacomSpider(Spider):
         plan_info = PlanInfoItem()
         basic_info = BasicInfoItem()
         around_info = AroundInfoItem()
-        city = response.data["city"]
-        page_id = response.data["_id"]
-        new_house["_id"] = page_id
-        new_house["city"] = city
-        new_house["url"] = response.data["url"]
-        print(response.data["url"])
+        page_id = response.meta["_id"]
+        new_house["_id"] = response.meta["city"]
+        new_house["city"] = page_id
+        new_house["url"] = response.meta["url"]
+        print(response.meta["url"])
         yield new_house
-        # init basic_info
+        # init basic_infoi
+        print(response.data["html"])
         html = Selector(text=response.data["html"])
         tmp = html.css(".container .fl.l-txt a")
         basic_info["name"] = tmp[-2].css("a::text").extract_first()
@@ -107,23 +108,13 @@ class LianjiacomSpider(Spider):
         XIANGQING = "xiangqing"
         lua_script = """
             function main(splash, args)
-                local url = args.url
                 splash.images_enabled = false
-                splash:init_cookies(args.cookies)
-                splash:set_user_agent(splash.args.user_agent)
-                splash:on_request(function(request)
-                    request:set_proxy{
-                        host = args.host,
-                        port = args.port
-                    }
-                end)
-                splash:go(url)
-                splash:wait(args.wait)
+                local url = args.url
+                args.proxy = "http://116.209.56.12:9999"
+                assert(splash:go(url))
+                assert(splash:wait(args.wait))
                 return {
                     html=splash:html(),
-                    url=args.url,
-                    city=args.city,
-                    _id=args._id,
                 }
             end
         """
@@ -137,17 +128,15 @@ class LianjiacomSpider(Spider):
                 yield SplashRequest(
                     url, 
                     self.parse_single, 
-                    args={
+                    args = {
                         "lua_source" : lua_script,
+                        'wait' : 20,
+                    },
+                    meta = {
                         "_id" : page_id,
                         "url" : url,
                         "city" : city,
-                        'wait' : 2,
-                        'host' : '',
-                        'port' : '',
-                        'cookies' : '',
-                        'user_agent' : '',
-                    }, 
+                    },
                     endpoint="execute",
                     dont_filter=False
                 )
@@ -161,8 +150,8 @@ class LianjiacomSpider(Spider):
         #获取到最后一页的页码
         last_page = math.ceil(tot/float(10))
         #遍历每一主页
-        #for num in range(1, 4):
-        for num in range(1, 1 + last_page):
+        for num in range(1, 2):
+        #for num in range(1, 1 + last_page):
             page = "pg" + str(num)
             url = self.lianjia_url.format(city=city, page=page)
             yield Request(

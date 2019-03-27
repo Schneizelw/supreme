@@ -4,6 +4,7 @@ import redis
 import random 
 
 MAX_IP_SCORE = 50
+HIGHLY_PROXY_SCORE = 100
 MIN_IP_SCORE = 0
 INIT_IP_SCORE = 10
 
@@ -51,6 +52,23 @@ class RedisClient():
         for proxy in proxies:
             self.add(proxy)
 
+    def add_highly(self, proxy):
+        """
+            add a new highly proxy
+        """
+        if not self.exists(proxy):
+            mapping = {
+                proxy : HIGHLY_PROXY_SCORE
+            }
+            return self.database.zadd(self.key, mapping)
+
+    def add_highly_proxies(self, proxies):
+        """
+            add highly proxies
+        """
+        for proxy in proxies:
+            self.add_highly(proxy)
+
     def count(self):
         """
             return number of the proxies
@@ -81,6 +99,16 @@ class RedisClient():
         else:
             #山穷水尽
             raise RiverEndError
+    
+    def get_highly_proxy(self):
+        """ 
+            get highly proxy
+        """
+        result = self.database.zrangebyscore(self.key, HIGHLY_PROXY_SCORE, HIGHLY_PROXY_SCORE)
+        if len(result):
+            return random.choice(result)
+        else:
+            return self.get_proxy()
 
     def decrease(self, proxy):
         """

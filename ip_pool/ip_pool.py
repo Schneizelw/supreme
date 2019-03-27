@@ -4,8 +4,8 @@ from proxies2redis import Save
 from check_proxies import Check
 from multiprocessing import Process
 
-SAVE_CYCLE_TIME = 3600
-CHECK_CYCLE_TIME = 30
+SAVE_CYCLE_TIME = 20
+CHECK_CYCLE_TIME = 20
 
 SAVE_OPEN = True
 CHECK_OPEN = True

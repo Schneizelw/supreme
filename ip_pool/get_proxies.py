@@ -49,13 +49,13 @@ class Crawler(metaclass=Metaclass):
             print("succ get proxy", proxy)
             proxies.append(proxy)
         return proxies
-
     
     def crawl_66ip(self):
         """
             get 66ip proxy
         """
-        upper_limit = 5
+        print("66ip")
+        upper_limit = 0
         url_66ip = self.urls["66ip"]
         url_list = [url_66ip.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -74,7 +74,8 @@ class Crawler(metaclass=Metaclass):
         """
             get kuaiproxy 
         """
-        upper_limit = 5
+        print("kuaidaili")
+        upper_limit = 0
         url_kuai = self.urls["kuaiproxy"]
         url_list = [url_kuai.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -93,7 +94,8 @@ class Crawler(metaclass=Metaclass):
         """
             get xiciproxy 
         """
-        upper_limit = 5
+        print("xici")
+        upper_limit = 0
         url_xici = self.urls["xiciproxy"]
         url_list = [url_xici.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -108,13 +110,12 @@ class Crawler(metaclass=Metaclass):
                     port = tr.find("td:nth-child(3)").text()
                     yield ip + ":" + port
 
-
-
     def crawl_89proxy(self):
         """
             get 89proxy 
         """
-        upper_limit = 5
+        print("89proxy")
+        upper_limit = 0
         url_89 = self.urls["89proxy"]
         url_list = [url_89.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -128,3 +129,13 @@ class Crawler(metaclass=Metaclass):
                     ip = tr.find("td:nth-child(1)").text().strip()
                     port = tr.find("td:nth-child(2)").text().strip()
                     yield ip + ":" + port
+    
+    def crawl_xundaili(self):
+        #url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20193270808SHoVf0/5c52e8080a2c11e7a12d00163e1a31c0?returnType=2"
+        url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20193270808SHoVf0/4c1062547e7211e7bcaf7cd30abda612?returnType=2"
+        html = self.get_html(url)
+        print(html)
+        if html:
+            result = json.loads(html)
+            proxy = result["RESULT"]
+            yield proxy.get("wanIp") + ":" + proxy.get("proxyport")

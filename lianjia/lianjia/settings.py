@@ -19,7 +19,7 @@ COOKIE_URL = "http://47.106.235.179:8051/lianjia"
 # 请求获取proxy的url
 PROXY_URL = "http://47.106.235.179:8052/proxy"
 # 渲染js splashurl
-SPLASH_URL = "http://47.106.235.179:8050/"
+SPLASH_URL = "http://47.106.235.179:8049/"
 # mongodb配置
 MONGO_URI = "47.106.235.179"
 #MONGO_URI = "localhost"
@@ -33,9 +33,9 @@ DOWNLOADER_MIDDLEWARES = {
     "scrapy_splash.SplashCookiesMiddleware": 723,
     "scrapy_splash.SplashMiddleware": 725,
     "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": 810,
-    "lianjia.middlewares.CookiesMiddleware": 750,
-    "lianjia.middlewares.ProxyMiddleware": 751,
-    "lianjia.middlewares.UserAgentMiddleware": 752,
+    "lianjia.middlewares.CookiesMiddleware": 820,
+    "lianjia.middlewares.ProxyMiddleware": 830,
+    "lianjia.middlewares.UserAgentMiddleware": 840,
     #"lianjia.middlewares.SeleniumMiddleware": 547,
 }
 
@@ -51,18 +51,14 @@ SPIDER_MIDDLEWARES = {
 }
 
 # 爬完后情况去重set和request list
-SCHEDULER_PERSIST = True
-# 使用scrapy_redis调度器类
-#SCHEDULER = "scrapy_redis.scheduler.Scheduler"
-# 使用scrapy_redis队列的先进先出队列
-#SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"
+#SCHEDULER_PERSIST = True
 
-# bloomfilter去重类
-DUPEFILTER_CLASS = "scrapy_redis_bloomfilter.dupefilter.RFPDupeFilter"
-# 散列函数个数
-BLOOMFILTER_HASH_NUMBER = 7
-# bit参数
-BLOOMFILTER_BIT = 30
+# 使用scrapy_redis调度器类
+SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+# 使用scrapy_redis去重类
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+# 使用scrapy_redis队列的先进先出队列
+SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"
 # redis配置
 REDIS_HOST = "47.106.235.179"
 REDIS_PORT = "6379"

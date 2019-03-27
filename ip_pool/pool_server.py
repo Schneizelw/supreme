@@ -19,7 +19,7 @@ def get_proxy():
         get proxy
     """
     conn = get_conn()
-    return conn.get_proxy()
+    return conn.get_highly_proxy()
 
 @app.route("/count")
 def get_counts():

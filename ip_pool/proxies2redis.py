@@ -16,6 +16,9 @@ class Save():
             for index in range(self.crawler.__FuncCount__):
                 func = self.crawler.__Funcs__[index]
                 proxies = self.crawler.get_proxies(func)
+                if index == self.crawler.__FuncCount__ - 1:
+                    print(proxies)
+                    self.redis.add_highly_proxies(proxies)    
                 self.redis.add_proxies(proxies)
             end = time.time()
             diff = end - start

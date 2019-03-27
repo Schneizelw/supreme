@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import time
+import random
 import asyncio 
 import aiohttp
 from redis_client import RedisClient
@@ -7,7 +8,7 @@ from concurrent.futures._base import TimeoutError
 from aiohttp.client_exceptions import ServerDisconnectedError
 from aiohttp.client_exceptions import ClientResponseError
 VALID_STATUS_CODES = [200]
-CHECK_URL = "https://sz.fang.lianjia.com/loupan/nhs1pg1"
+CHECK_URL = ["https://sz.lianjia.com/", "https://sz.lianjia.com/loupan/p_yrdljaftjd/xiangqing"]
 CHECK_SIZE = 50
 
 class Check():
@@ -23,7 +24,7 @@ class Check():
                     proxy = proxy.decode("utf-8")
                 real_proxy = "http://" + proxy
                 print("checking: ",real_proxy)
-                async with session.get(CHECK_URL, proxy=real_proxy, timeout=15) as response:
+                async with session.get(CHECK_URL[random.randint(0, 1)], proxy=real_proxy, timeout=10) as response:
                     if response.status in VALID_STATUS_CODES:
                         self.redis.max(proxy)
                         print("%s can be use" % proxy)

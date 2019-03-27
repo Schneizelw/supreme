@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#hosts=(47.103.1.31 47.106.235.179)
-hosts=(47.103.1.31)
+hosts=(47.103.1.31 47.106.235.179)
+#hosts=(47.103.1.31)
 
 function start() {
     for host in ${hosts[@]}
