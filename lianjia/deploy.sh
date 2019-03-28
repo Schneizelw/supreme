@@ -1,6 +1,6 @@
 #!/bin/bash
 
-hosts=(47.103.1.31 47.106.235.179)
+hosts=(112.74.58.112 47.103.1.31 47.106.235.179)
 #hosts=(47.103.1.31)
 
 function start() {
@@ -9,6 +9,7 @@ function start() {
             result=$(curl http://$host:6800/schedule.json -d project=lianjia -d spider=lianjiacom)
             status=$(echo "$result" | jq '.status')
             echo $status
+            #echo $result
             if [ "$status"x = "\"ok\""x ];then
                 jobid=$(echo "$result" | jq '.jobid')
                 jobid=$(echo $jobid | sed "s/\"//g")
@@ -62,20 +63,20 @@ function deploy() {
 ## local主要用于测试
 function deploy_local() {
     #部署到vm1对应到的机器
-    result=$(scrapyd-deploy vm1)
+    result=$(scrapyd-deploy vm3)
     echo "$result" | jq '.status'
     echo "$result"
 }
 
 function start_local() {
     #开启vm1中的spider
-    result=$(curl http://47.106.235.179:6800/schedule.json -d project=lianjia -d spider=lianjiacom)
+    result=$(curl http://112.74.58.112:6800/schedule.json -d project=lianjia -d spider=lianjiacom)
     echo "$result"
 }
 
 function cancel_local() {
     #取消vm1中的spider
-    result=$(curl http://47.106.235.179:6800/cancel.json -d project=lianjia -d job=$1)
+    result=$(curl http://112.74.58.112:6800/cancel.json -d project=lianjia -d job=$1)
     echo "$result"
 }
 

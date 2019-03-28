@@ -15,8 +15,9 @@ class LianjiacomSpider(Spider):
 
     city = ""
     cities = [
-        "sz", "sh", "bj", "gz",
-        #"cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg"
+        #"sz", 
+        #"sh", "bj", "gz",
+        "cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg"
     ]
     name = 'lianjiacom'
     allowed_domains = ['lianjia.com']
@@ -105,13 +106,13 @@ class LianjiacomSpider(Spider):
     def parse_main(self, response): 
         city = response.meta["city"]
         XIANGQING = "xiangqing"
+        #args.proxy = "http://116.209.56.12:9999"
+        #assert(splash:wait(args.wait))
         lua_script = """
             function main(splash, args)
                 splash.images_enabled = false
                 local url = args.url
-                args.proxy = "http://116.209.56.12:9999"
                 assert(splash:go(url))
-                assert(splash:wait(args.wait))
                 return {
                     html=splash:html(),
                 }
@@ -129,7 +130,6 @@ class LianjiacomSpider(Spider):
                     self.parse_single, 
                     args = {
                         "lua_source" : lua_script,
-                        'wait' : 20,
                     },
                     meta = {
                         "_id" : page_id,

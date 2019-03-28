@@ -73,14 +73,15 @@ class ProxyMiddleware():
             return False
 
     def process_request(self, request, spider):
+        if request.meta.get('retry_times'):
             if request.url[-7:] != "execute":
-                #if request.meta.get('retry_times'):
-                proxy = self.get_proxy()
-                if proxy:
-                    uri = "http://{proxy}".format(proxy=proxy)
-                    request.meta["proxy"] = "http://27.29.44.160:9999"
-                    print(request.meta)
-                    print("succ set proxy")
+                    proxy = self.get_proxy()
+                    if proxy:
+                        uri = "http://{proxy}".format(proxy=proxy)
+                        request.meta["proxy"] = uri
+                        request.meta["download_timeout"] = 50
+                        print(request.meta)
+                        print("succ set proxy")
             else:
                 proxy = self.get_proxy()
                 if proxy:

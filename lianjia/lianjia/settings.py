@@ -15,13 +15,13 @@ SPIDER_MODULES = ['lianjia.spiders']
 NEWSPIDER_MODULE = 'lianjia.spiders'
 
 # 请求获取cookie的url
-COOKIE_URL = "http://47.106.235.179:8051/lianjia"
+COOKIE_URL = "http://112.74.58.112:8051/lianjia"
 # 请求获取proxy的url
-PROXY_URL = "http://47.106.235.179:8052/proxy"
+PROXY_URL = "http://112.74.58.112:8052/proxy"
 # 渲染js splashurl
-SPLASH_URL = "http://47.106.235.179:8049/"
+SPLASH_URL = "http://112.74.58.112:8049/"
 # mongodb配置
-MONGO_URI = "47.106.235.179"
+MONGO_URI = "112.74.58.112"
 #MONGO_URI = "localhost"
 MONGO_DB = "lianjia"
 #selenium middleware use it 
@@ -60,7 +60,7 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 # 使用scrapy_redis队列的先进先出队列
 SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"
 # redis配置
-REDIS_HOST = "47.106.235.179"
+REDIS_HOST = "112.74.58.112"
 REDIS_PORT = "6379"
 REDIS_PASSWORD = None
 
