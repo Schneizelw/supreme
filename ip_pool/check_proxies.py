@@ -8,7 +8,7 @@ from concurrent.futures._base import TimeoutError
 from aiohttp.client_exceptions import ServerDisconnectedError
 from aiohttp.client_exceptions import ClientResponseError
 VALID_STATUS_CODES = [200]
-CHECK_URL = ["https://sz.lianjia.com/", "https://sz.lianjia.com/loupan/p_yrdljaftjd/xiangqing"]
+CHECK_URL = ["http://sz.lianjia.com/", "http://sz.lianjia.com/loupan/p_yrdljaftjd/xiangqing"]
 CHECK_SIZE = 50
 
 class Check():
@@ -23,11 +23,19 @@ class Check():
                 if isinstance(proxy, bytes):
                     proxy = proxy.decode("utf-8")
                 real_proxy = "http://" + proxy
+                
                 print("checking: ",real_proxy)
                 async with session.get(CHECK_URL[random.randint(0, 1)], proxy=real_proxy, timeout=10) as response:
                     if response.status in VALID_STATUS_CODES:
-                        self.redis.max(proxy)
-                        print("%s can be use" % proxy)
+                        score = self.redis.get_score(proxy)
+                        if score > 50:
+                            #该代理为付费代理 设置为100
+                            self.redis.set_score(proxy, 100)
+                            print("%s can be use 100 score" % proxy)
+                        else:
+                            #设置到50分 
+                            self.redis.max(proxy)
+                            print("%s can be use 50 score" % proxy)
                     else:
                         print("1:Not valid code:%s decrease" % proxy)
                         self.redis.decrease(proxy)

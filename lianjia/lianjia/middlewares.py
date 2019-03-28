@@ -78,7 +78,7 @@ class ProxyMiddleware():
                 proxy = self.get_proxy()
                 if proxy:
                     uri = "http://{proxy}".format(proxy=proxy)
-                    request.meta["proxy"] = uri
+                    request.meta["proxy"] = "http://27.29.44.160:9999"
                     print(request.meta)
                     print("succ set proxy")
             else:

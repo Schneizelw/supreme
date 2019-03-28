@@ -55,7 +55,7 @@ class Crawler(metaclass=Metaclass):
             get 66ip proxy
         """
         print("66ip")
-        upper_limit = 0
+        upper_limit = 2
         url_66ip = self.urls["66ip"]
         url_list = [url_66ip.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -75,7 +75,7 @@ class Crawler(metaclass=Metaclass):
             get kuaiproxy 
         """
         print("kuaidaili")
-        upper_limit = 0
+        upper_limit = 2
         url_kuai = self.urls["kuaiproxy"]
         url_list = [url_kuai.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -95,7 +95,7 @@ class Crawler(metaclass=Metaclass):
             get xiciproxy 
         """
         print("xici")
-        upper_limit = 0
+        upper_limit = 2
         url_xici = self.urls["xiciproxy"]
         url_list = [url_xici.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -115,7 +115,7 @@ class Crawler(metaclass=Metaclass):
             get 89proxy 
         """
         print("89proxy")
-        upper_limit = 0
+        upper_limit = 2
         url_89 = self.urls["89proxy"]
         url_list = [url_89.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:

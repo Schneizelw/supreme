@@ -15,15 +15,14 @@ class LianjiacomSpider(Spider):
 
     city = ""
     cities = [
-        "sz", 
-        #"sh", "bj", "gz",
+        "sz", "sh", "bj", "gz",
         #"cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg"
     ]
     name = 'lianjiacom'
     allowed_domains = ['lianjia.com']
 
-    base_url = "https://{city}.lianjia.com"
-    lianjia_url = "https://{city}.fang.lianjia.com/loupan/nhs1{page}"
+    base_url = "http://{city}.lianjia.com"
+    lianjia_url = "http://{city}.fang.lianjia.com/loupan/nhs1{page}"
 
     def start_requests(self):
         BEGIN = "pg1"
@@ -31,6 +30,7 @@ class LianjiacomSpider(Spider):
             print(self.lianjia_url.format(city=city, page=BEGIN))
             yield Request(
                 self.lianjia_url.format(city=city, page=BEGIN), 
+                #url = "http://httpbin.org/get",
                 meta={
                     "city" : city
                 },
@@ -50,7 +50,7 @@ class LianjiacomSpider(Spider):
         print(response.meta["url"])
         yield new_house
         # init basic_infoi
-        print(response.data["html"])
+        #print(response.data["html"])
         html = Selector(text=response.data["html"])
         tmp = html.css(".container .fl.l-txt a")
         basic_info["name"] = tmp[-2].css("a::text").extract_first()
@@ -102,8 +102,7 @@ class LianjiacomSpider(Spider):
             around_info[entity_map[str(i)]] = tmp 
         yield around_info        
 
-    def parse_main(self, response):
-        
+    def parse_main(self, response): 
         city = response.meta["city"]
         XIANGQING = "xiangqing"
         lua_script = """
@@ -150,8 +149,8 @@ class LianjiacomSpider(Spider):
         #获取到最后一页的页码
         last_page = math.ceil(tot/float(10))
         #遍历每一主页
-        for num in range(1, 2):
-        #for num in range(1, 1 + last_page):
+        #for num in range(1, 2):
+        for num in range(1, 1 + last_page):
             page = "pg" + str(num)
             url = self.lianjia_url.format(city=city, page=page)
             yield Request(
