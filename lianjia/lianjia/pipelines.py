@@ -6,28 +6,41 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import pymongo
+from lianjia.items import RentHouseItem
 from lianjia.items import NewHouseItem, BasicInfoItem
 from lianjia.items import PlanInfoItem, AroundInfoItem
 
 class LianjiaPipeline(object):
+
     def process_item(self, item, spider):
-        if isinstance(item, NewHouseItem):
-            item["basic_info"] = {}
-            item["plan_info"] = {}
-            item["around_info"] = {}
-        elif isinstance(item, BasicInfoItem):
-            item["price"] = item["price"].replace("均价", "").strip()
-            item["tag"] = item["tag"].strip().split(" ")
-        elif isinstance(item, PlanInfoItem):
-            for k, v in item.items():
-                if v is not None and isinstance(v, str):
-                    item[k] = v.strip()
-        elif isinstance(item, AroundInfoItem):
-            for k, v in item.items():
-                if v is not None and isinstance(v, str):
-                    item[k] = v.strip().replace("\n", "").replace(" ", "").replace("；","")
-        return item
-        
+        if spider.name == "renthouse":
+            #租房数据清理
+            if isinstance(item, RentHouseItem):      
+                for k, v in item.items():
+                    if v is not None and isinstance(v, str):
+                        item[k] = v.strip()
+                tmp = item["_id"].split("/")
+                item["_id"] = tmp[-1].replace(".html", "")
+                return item
+        else:
+            if isinstance(item, NewHouseItem):
+                item["basic_info"] = {}
+                item["plan_info"] = {}
+                item["around_info"] = {}
+            elif isinstance(item, BasicInfoItem):
+                item["price"] = item["price"].replace("均价", "").strip()
+                item["tag"] = item["tag"].strip().split(" ")
+            elif isinstance(item, PlanInfoItem):
+                for k, v in item.items():
+                    if v is not None and isinstance(v, str):
+                        item[k] = v.strip()
+            elif isinstance(item, AroundInfoItem):
+                for k, v in item.items():
+                    if v is not None and isinstance(v, str):
+                        item[k] = v.strip().replace("\n", "").replace(" ", "").replace("；","")
+            return item
+       
+
 class MongoPipeline(object):
     
     def __init__(self, mongo_uri, mongo_db):
@@ -47,6 +60,13 @@ class MongoPipeline(object):
 
     def process_item(self, item, spider):
         if isinstance(item, NewHouseItem):
+            self.db[item.collection].update(
+                {"_id" : item["_id"]},
+                {"$set" : dict(item)},
+                True
+            )  
+            return item
+        if isinstance(item, RentHouseItem):
             self.db[item.collection].update(
                 {"_id" : item["_id"]},
                 {"$set" : dict(item)},

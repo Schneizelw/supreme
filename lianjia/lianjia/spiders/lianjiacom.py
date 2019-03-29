@@ -13,10 +13,8 @@ from lianjia.items import PlanInfoItem, AroundInfoItem
 
 class LianjiacomSpider(Spider):
 
-    city = ""
     cities = [
-        #"sz", 
-        #"sh", "bj", "gz",
+        "sz", "sh", "bj", "gz",
         "cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg"
     ]
     name = 'lianjiacom'

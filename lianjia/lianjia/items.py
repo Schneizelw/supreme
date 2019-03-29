@@ -55,4 +55,19 @@ class AroundInfoItem(Item):
     school = Field()           # 学校
     market = Field()           # 超市
     park = Field()             # 公园
-    
+
+
+class RentHouseItem(Item):
+    collection = "rentHouse"
+    _id = Field()
+    url = Field()           # url
+    city = Field()          # 城市
+    name = Field()          # 名字
+    house_type = Field()    # 基本空间
+    price = Field()         # 价格
+    location = Field()      # 位置
+    area = Field()          # 面积
+    orientation = Field()   # 朝向
+    agency = Field()        # 中介 总是链家(可扩展)
+    tags = Field()           # 标签
+

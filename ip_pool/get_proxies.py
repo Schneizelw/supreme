@@ -3,6 +3,7 @@ import json
 import time
 import requests
 from pyquery import PyQuery as pq
+from redis_client import RedisClient
 from requests.exceptions import ConnectionError
 
 class Metaclass(type):
@@ -24,6 +25,7 @@ class Crawler(metaclass=Metaclass):
         fd = open("conf/proxy_url.json", "r")
         tmp = fd.read()
         self.urls = json.loads(tmp)
+        self.redis = RedisClient()
 
     def get_html(self, url):
         """
@@ -131,11 +133,13 @@ class Crawler(metaclass=Metaclass):
                     yield ip + ":" + port
     
     def crawl_xundaili(self):
-        #url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20193270808SHoVf0/5c52e8080a2c11e7a12d00163e1a31c0?returnType=2"
-        url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20193270808SHoVf0/4c1062547e7211e7bcaf7cd30abda612?returnType=2"
-        html = self.get_html(url)
-        print(html)
-        if html:
-            result = json.loads(html)
-            proxy = result["RESULT"]
-            yield proxy.get("wanIp") + ":" + proxy.get("proxyport")
+        proxy = self.redis.get_highly_proxy()
+        score = self.redis.get_score(proxy)
+        if score != 100:
+            url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20193292073q8mu4k/9f7e2940160211e79ff07cd30abda612?returnType=2"  
+            html = self.get_html(url)
+            print(html)
+            if html:
+                result = json.loads(html)
+                proxy = result["RESULT"]
+                yield proxy.get("wanIp") + ":" + proxy.get("proxyport")

@@ -58,7 +58,7 @@ class RedisClient():
         """
         if not self.exists(proxy):
             mapping = {
-                proxy : HIGHLY_PROXY_SCORE - 1
+                proxy : HIGHLY_PROXY_SCORE
             }
             return self.database.zadd(self.key, mapping)
 
@@ -79,7 +79,7 @@ class RedisClient():
         """
             get all proxies
         """
-        return self.database.zrangebyscore(self.key, MIN_IP_SCORE, MAX_IP_SCORE)
+        return self.database.zrangebyscore(self.key, MIN_IP_SCORE, HIGHLY_PROXY_SCORE)
 
     def max(self, proxy):
         """
@@ -126,9 +126,12 @@ class RedisClient():
         if score and score > MIN_IP_SCORE:
             return self.database.zincrby(self.key, -1, proxy)
         else:
-            print("delete %s" % proxy)
-            return self.database.zrem(self.key, proxy)
-    
+            self.delproxy(proxy)
+   
+    def delproxy(self, proxy):
+        print("delete %s" % proxy)
+        return self.database.zrem(self.key, proxy)
+        
     def get_score(self, proxy):
         """
             return proxy score

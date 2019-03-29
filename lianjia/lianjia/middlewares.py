@@ -73,15 +73,22 @@ class ProxyMiddleware():
             return False
 
     def process_request(self, request, spider):
-        if request.meta.get('retry_times'):
+        if request.meta.get('retry_times') == 2:
+            #当失败达到两次时候使用本机的ip 不使用任何代理
+            print(request.meta)
+            if "proxy" in request.meta.keys():
+                request.meta.pop("proxy")
+        else:
+            # 判断是否是splash请求
             if request.url[-7:] != "execute":
-                    proxy = self.get_proxy()
-                    if proxy:
-                        uri = "http://{proxy}".format(proxy=proxy)
-                        request.meta["proxy"] = uri
-                        request.meta["download_timeout"] = 50
-                        print(request.meta)
-                        print("succ set proxy")
+                proxy = self.get_proxy()
+                if proxy:
+                    uri = "http://{proxy}".format(proxy=proxy)
+                    request.meta["proxy"] = uri
+                    #request.meta["proxy"] = "http://180.110.151.126:40877"
+                    request.meta["download_timeout"] = 50
+                    print(request.meta)
+                    print("succ set proxy")
             else:
                 proxy = self.get_proxy()
                 if proxy:

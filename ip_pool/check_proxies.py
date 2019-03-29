@@ -8,8 +8,12 @@ from concurrent.futures._base import TimeoutError
 from aiohttp.client_exceptions import ServerDisconnectedError
 from aiohttp.client_exceptions import ClientResponseError
 VALID_STATUS_CODES = [200]
-CHECK_URL = ["http://sz.lianjia.com/", "http://sz.lianjia.com/loupan/p_yrdljaftjd/xiangqing"]
-CHECK_SIZE = 50
+CHECK_URL = [
+    "http://sz.lianjia.com/", 
+    "http://sz.lianjia.com/loupan/p_yrdljaftjd/xiangqing", 
+    "https://bj.lianjia.com/zufang/chaoyang/ab200301001000pg1rp4/?showMore=1"
+]
+CHECK_SIZE = 80
 
 class Check():
     
@@ -22,20 +26,15 @@ class Check():
             try:
                 if isinstance(proxy, bytes):
                     proxy = proxy.decode("utf-8")
-                real_proxy = "http://" + proxy
-                
-                print("checking: ",real_proxy)
-                async with session.get(CHECK_URL[random.randint(0, 1)], proxy=real_proxy, timeout=10) as response:
+                real_proxy = "http://" + proxy               
+                check_url = CHECK_URL[random.randint(0, len(CHECK_URL)-1)]
+                print("checking: ",real_proxy, check_url)
+                async with session.get(check_url, proxy=real_proxy, timeout=10) as response:
+                    score = self.redis.get_score(proxy)
                     if response.status in VALID_STATUS_CODES:
-                        score = self.redis.get_score(proxy)
-                        if score > 50:
-                            #该代理为付费代理 设置为100
-                            self.redis.set_score(proxy, 100)
-                            print("%s can be use 100 score" % proxy)
-                        else:
-                            #设置到50分 
-                            self.redis.max(proxy)
-                            print("%s can be use 50 score" % proxy)
+                        #设置到50分 
+                        self.redis.max(proxy)
+                        print("%s can be use 50 score" % proxy)
                     else:
                         print("1:Not valid code:%s decrease" % proxy)
                         self.redis.decrease(proxy)
