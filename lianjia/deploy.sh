@@ -6,7 +6,7 @@ hosts=(112.74.58.112 47.103.1.31 47.106.235.179)
 function start() {
     for host in ${hosts[@]}
         do
-            result=$(curl http://$host:6800/schedule.json -d project=lianjia -d spider=lianjiacom)
+            result=$(curl http://$host:6800/schedule.json -d project=lianjia -d spider=$1)
             status=$(echo "$result" | jq '.status')
             echo $status
             #echo $result
@@ -54,6 +54,15 @@ function delproject() {
         done
 }
 
+function listjobs() {
+    for host in ${hosts[@]}
+        do
+            result=$(curl http://$host:6800/listjobs.json?project=lianjia)
+            echo "$host"
+            echo "$result" | jq '.'
+        done
+}
+
 function deploy() {
     #部署到全部机器
     result=$(scrapyd-deploy -a)
@@ -82,14 +91,15 @@ function cancel_local() {
 
 function usage() {
     echo "usage: sh $0 <command>"
-    echo "  bash $0 deploy_local 将spider部署到本机测试"
-    echo "  bash $0 start_local  开启本机的spider进行测试"
-    echo "  bash $0 cancel_local jobid 取消在本机用于测试的spider"
-    echo "  bash $0 deploy       将spider部署到所有服务器"
-    echo "  bash $0 start        打开所有机器上的spider"
-    echo "  bash $0 cancel       取消所有的spider"
-    echo "  bash $0 stataus      查看任务状态"
-    echo "  bash $0 delproject   删除项目"
+    echo "  bash $0 deploy_local           将spider部署到本机测试"
+    echo "  bash $0 start_local            开启本机的spider进行测试"
+    echo "  bash $0 cancel_local jobid     取消在本机用于测试的spider"
+    echo "  bash $0 deploy                 将spider部署到所有服务器"
+    echo "  bash $0 start spidername       打开所有机器上的spider"
+    echo "  bash $0 cancel                 取消所有的spider"
+    echo "  bash $0 stataus                查看任务状态"
+    echo "  bash $0 delproject             删除项目"
+    echo "  bash $0 listjobs               项目详情"
 }
 
 function main() {
@@ -98,10 +108,11 @@ function main() {
         "start_local") start_local;;
         "cancel_local") cancel_local $2;;
         "deploy") deploy;;
-        "start") start;;
-        "cancel") cancel;;
+        "start") start $2;;
+        "cancel") cancel ;;
         "status") status;;
         "delproject") delproject;;
+        "listjobs") listjobs $2;;
         *) usage;;
     esac
 }

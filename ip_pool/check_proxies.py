@@ -32,9 +32,10 @@ class Check():
                 async with session.get(check_url, proxy=real_proxy, timeout=10) as response:
                     score = self.redis.get_score(proxy)
                     if response.status in VALID_STATUS_CODES:
-                        #设置到50分 
-                        self.redis.max(proxy)
-                        print("%s can be use 50 score" % proxy)
+                        if score != 100:
+                            #设置到50分 
+                            self.redis.max(proxy)
+                            print("%s can be use 50 score" % proxy)
                     else:
                         print("1:Not valid code:%s decrease" % proxy)
                         self.redis.decrease(proxy)

@@ -8,14 +8,16 @@ from scrapy import Request, Spider
 from scrapy.selector import Selector
 from lianjia.items import RentHouseItem
 
-
 class RenthouseSpider(scrapy.Spider):
+    """
+        爬取链家的出租房源，去重中介重复发的信息，如朝阳区有5266房源，但是重复的这有1000多条信息
+        就是中介重复发同一条房源信息，提高流量。
+    """
     name = 'renthouse'
     cities = [
-        #"bj",
-        "sz",
-        #"sh", "gz",
-        #"cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg"
+        "bj", 
+        "sz", "sh", "gz",
+        "cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg"
     ]
     allowed_domains = ['lianjia.com']
     agency = "ab200301001000"
@@ -65,7 +67,6 @@ class RenthouseSpider(scrapy.Spider):
                 path = '/' + zone + '/' + self.agency + RP + str(i) + "pg/?showMore=1"
                                                                      #^^^^Warning can't change to pg1
                 url = self.base_url.format(city=city) + path
-                print(url)
                 yield Request(
                     url=url, 
                     meta={
@@ -75,15 +76,6 @@ class RenthouseSpider(scrapy.Spider):
                     callback=self.parse_main, 
                     dont_filter=False
                 )
-        #yield Request(
-        #    url="https://sz.lianjia.com/zufang/nanshanqu/ab200301001000rp4pg1/?showMore=1", 
-        #    meta={
-        #        "city" : city,
-        #        "url"  : "https://sz.lianjia.com/zufang/nanshanqu/ab200301001000rp4pg1/?showMore=1",
-        #    },
-        #    callback=self.parse_main, 
-        #    dont_filter=True
-        #)
 
     def parse_main(self, response):
         """
@@ -92,11 +84,11 @@ class RenthouseSpider(scrapy.Spider):
         #获取该组合的房源数量判断是否需要翻页
         city = response.meta["city"]
         tmp = response.css("#content .content__article .content__title span::text").extract_first()
-        tot = int(tmp)
+        tot = float(tmp)
         #获取到最后一页的页码
         last_page = math.ceil(tot/float(30))
         parent_url = response.meta["url"]
-        parent_url = parent_url.replace("pg1", "{page}")
+        parent_url = parent_url.replace("pg", "{page}")
         if last_page != 0:    
             #遍历每一页
             for num in range(1, 1 + last_page):
@@ -112,15 +104,6 @@ class RenthouseSpider(scrapy.Spider):
                     callback=self.parse, 
                     dont_filter=False
                 )
-            #yield Request(
-            #    url="https://sz.lianjia.com/zufang/nanshanqu/ab200301001000rp4pg1/?showMore=1", 
-            #    meta={
-            #        "city" : city,
-            #        "url"  : "https://sz.lianjia.com/zufang/nanshanqu/ab200301001000rp4pg1/?showMore=1",
-            #    },
-            #    callback=self.parse, 
-            #    dont_filter=False
-            #)
     
     def parse(self, response): 
         """
@@ -129,11 +112,11 @@ class RenthouseSpider(scrapy.Spider):
         rent_house = RentHouseItem()
         city = response.meta["city"]
         url = response.meta["url"]
-        divs = response.css("#content .content__article .content__list div")
+        divs = response.css("#content .content__article .content__list div.content__list--item")
         for index, div in enumerate(divs):
             link = div.css("a::attr('href')").extract_first()
             rent_house["_id"] = link
-            rent_house["url"] = url 
+            rent_house["url"] = self.base_url.format(city=city) + link.replace("/zufang","") 
             rent_house["city"] = city
             ps = div.css(".content__list--item--main p")
             rent_house["name"] = ps[0].css("a::text").extract_first()

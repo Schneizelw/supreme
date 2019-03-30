@@ -116,6 +116,7 @@ class RedisClient():
         if len(result):
             return random.choice(result)
         else:
+            print(result)
             return self.get_proxy()
 
     def decrease(self, proxy):

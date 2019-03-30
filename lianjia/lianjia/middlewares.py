@@ -48,7 +48,7 @@ class CookiesMiddleware():
             if request.url[-7:] != "execute":
                 #设置cookie
                 request.cookies = cookie
-                print("succ set cookie")
+                #print("succ set cookie")
             else:
                 request.meta["splash"]["args"]["cookies"] = cookie
 
@@ -87,8 +87,8 @@ class ProxyMiddleware():
                     request.meta["proxy"] = uri
                     #request.meta["proxy"] = "http://180.110.151.126:40877"
                     request.meta["download_timeout"] = 50
-                    print(request.meta)
-                    print("succ set proxy")
+                    #print(request.meta)
+                    #print("succ set proxy")
             else:
                 proxy = self.get_proxy()
                 if proxy:
