@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>SpiderHouse</title>
+  <link rel="stylesheet" type="text/css" href="./index.css">
+
+  </style>
+  <!-- 引入 ECharts 文件 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts.min.js"></script>
+  <script type="text/javascript" src="http://gallery.echartsjs.com/dep/echarts/map/js/china.js"></script>
+  <!-- 引入计算渐变颜色函数 -->
+  <script src="./utils.js"></script>
+</head>
+
+<body>
+  <div class="header">
+    <div class="bd">
+      <a href="http://112.74.58.112:8053/" class="logo" title="spiderhouse">SpiderHouse</a>
+      <ul class="nav">
+        <li class="item">
+          <a href="http://112.74.58.112:8053/">首页</a>
+        </li>
+        <li class="item">
+          <a href="http://112.74.58.112:8053/renthouse">租房</a>
+        </li>
+        <li class="item">
+          <a href="http://112.74.58.112:8053/newhouse">新房</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="container">
+    <div class="mainWrap">
+      <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+      <div class="mainMap" id="map"></div>
+    </div>
+    <div class="mainWrap">
+      <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+      <div class="mainMap" id="bar"></div>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+    // GET /api/rentHouse?sort=1 返回 {status: 1, data: [{ name: '北京', value: 100 }]}
+    // GET '/api/rentHouse'
+    // 全国租房房源数量图
+    const map = echarts.init(document.getElementById('map'));
+    const mapData = [
+      { name: '北京', value: Math.round(Math.random() * 1000) },
+      { name: '天津', value: Math.round(Math.random() * 1000) },
+      { name: '上海', value: Math.round(Math.random() * 1000) },
+      { name: '重庆', value: Math.round(Math.random() * 1000) },
+      { name: '河北', value: Math.round(Math.random() * 1000) },
+      { name: '河南', value: Math.round(Math.random() * 1000) },
+      { name: '云南', value: Math.round(Math.random() * 1000) },
+      { name: '辽宁', value: Math.round(Math.random() * 1000) },
+      { name: '黑龙江', value: Math.round(Math.random() * 1000) },
+      { name: '湖南', value: Math.round(Math.random() * 1000) },
+      { name: '安徽', value: Math.round(Math.random() * 1000) },
+      { name: '山东', value: Math.round(Math.random() * 1000) },
+      { name: '新疆', value: Math.round(Math.random() * 1000) },
+      { name: '江苏', value: Math.round(Math.random() * 1000) },
+      { name: '浙江', value: Math.round(Math.random() * 1000) },
+      { name: '江西', value: Math.round(Math.random() * 1000) },
+      { name: '湖北', value: Math.round(Math.random() * 1000) },
+      { name: '广西', value: Math.round(Math.random() * 1000) },
+    ];
+    const mapOption = {
+      backgroundColor: '#fff',
+      title: {
+        text: '租房房源数量',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item'
+      },
+      legend: {
+        orient: 'vertical',
+        left: 'left',
+        data: ['房源']
+      },
+      visualMap: {
+        min: 0,
+        max: 2500,
+        left: 'left',
+        top: 'bottom',
+        text: ['高', '低'],  // 文本，默认为数值文本
+        calculable: true
+      },
+      toolbox: {
+        show: true,
+        orient: 'vertical',
+        left: 'right',
+        top: 'center',
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      series: [
+        {
+          name: '房源',
+          type: 'map',
+          mapType: 'china',
+          roam: true,
+          label: {
+            normal: {
+              show: false
+            },
+            emphasis: {
+              show: true
+            }
+          },
+          data: mapData
+        },
+      ]
+    };
+    map.setOption(mapOption);
+
+    // 全国平均租房价排序图
+    const bar = echarts.init(document.getElementById('bar'));
+    const barData = [
+      { name: '北京', value: 16000 },
+      { name: '天津', value: 15080 },
+      { name: '上海', value: 14777 },
+      { name: '重庆', value: 14200 },
+      { name: '河北', value: 13683 },
+      { name: '河南', value: 12983 },
+      { name: '云南', value: 12764 },
+      { name: '辽宁', value: 12098 },
+      { name: '黑龙江', value: 11973 },
+      { name: '湖南', value: 10934 },
+      { name: '安徽', value: 10523 },
+      { name: '山东', value: 9753 },
+      { name: '新疆', value: 8642 },
+      { name: '江苏', value: 8293 },
+      { name: '浙江', value: 7921 },
+      { name: '江西', value: 7532 },
+      { name: '湖北', value: 7500 },
+      { name: '广西', value: 6921 },
+    ];
+    const colorList = gradient('#b03a5b', '#E7CAD4', barData.length);
+    const barOption = {
+      backgroundColor: '#fff',
+      xAxis: {
+        type: 'category',
+        data: barData.map(item => item.name),
+        name: '城市',  // 坐标轴名称
+        axisLine: {
+          symbol: ['none', 'arrow']  // 坐标轴的箭头，起始点无箭头，终点有箭头
+        },
+        axisTick: {
+          alignWithLabel: true,  // 坐标轴刻度与label对其
+        },
+        axisLabel: {
+          interval: 0  // 强制显示所有label（所有城市）
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: '房租',
+        axisLine: {
+          symbol: ['none', 'arrow']  // 坐标轴的箭头，起始点无箭头，终点有箭头
+        }
+      },
+      series: [{
+        data: barData,
+        type: 'bar',
+        itemStyle: {  // 柱形颜色
+          color: (params) => colorList[params.dataIndex]
+        }
+      }]
+    };
+    bar.setOption(barOption);
+  </script>
+</body>
+
+</html>

@@ -19,5 +19,6 @@ from house import views
 
 urlpatterns = [
     path('', views.home),
+    path('api/rentHouse', views.rentHouse),
     path('admin/', admin.site.urls),
 ]

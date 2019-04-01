@@ -10,8 +10,6 @@ from aiohttp.client_exceptions import ClientResponseError
 VALID_STATUS_CODES = [200]
 CHECK_URL = [
     "http://sz.lianjia.com/", 
-    "http://sz.lianjia.com/loupan/p_yrdljaftjd/xiangqing", 
-    "https://bj.lianjia.com/zufang/chaoyang/ab200301001000pg1rp4/?showMore=1"
 ]
 CHECK_SIZE = 80
 

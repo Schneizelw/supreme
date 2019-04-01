@@ -1,6 +1,6 @@
 service mongod start
 # check 8052
-nohup python3.6 ip_pool/ip_pool.py > /dev/null 2>&1 &
+#nohup python3.6 ip_pool/ip_pool.py > /dev/null 2>&1 &
 # check 8051
 nohup python3.6 cookie_pool/cookie_pool.py > /dev/null 2>&1 &
 # check 8050
