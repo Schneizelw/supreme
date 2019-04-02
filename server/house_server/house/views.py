@@ -114,6 +114,18 @@ def query_rent_count(filename):
     fd.write(json.dumps(data))
     return data
 
+def clean_price(price):
+    # 有些房价的加个是一个区间 例如 4500-5000 那么去中间值
+    if isinstance(price, str):
+        tmp = price.split("-")
+        res = (int(tmp[0]) + int(tmp[1]))/2
+    else:
+        res = int(price)
+    # 大于一百万的数据扔掉
+    if res > 1000000:
+        return -1
+    return res
+    
 def query_rent_avgprice(filename):
     """
         query mongo calculate the avg price of each city
@@ -124,13 +136,18 @@ def query_rent_avgprice(filename):
     res = RentHouse.objects.only('city', 'price')
     for item in res:
         city = item.city
+        price = clean_price(item.price)
+        if price == -1:
+            continue
         if city in rent_avgprice.keys():
-            rent_avgprice[city].append(item.price)
+            rent_avgprice[city].append(price)
         else:
-            rent_avgprice[city] = [item.price]
+            rent_avgprice[city] = [price]
     for key, value in rent_avgprice.items():
         s = Series(value)
         rent_avgprice[key] = s.mean()
+    for key, value in rent_avgprice.items():
+        rent_avgprice[key] = int(value)
     # write the result to cache file
     fd = open('./cache/' + filename, "w", encoding="utf-8")
     fd.write(json.dumps(rent_avgprice))
@@ -147,10 +164,13 @@ def query_rent_avgzone(filename):
     for item in res:
         tmp = item.location.split('-')
         zone = item.city + '-' + tmp[0]
+        price = clean_price(item.price)
+        if price == -1:
+            continue
         if zone in rent_avgzone.keys():
-            rent_avgzone[zone].append(item.price)
+            rent_avgzone[zone].append(price)
         else:
-            rent_avgzone[zone] = [item.price]
+            rent_avgzone[zone] = [price]
     for key, value in rent_avgzone.items():
         s = Series(value)
         rent_avgzone[key] = s.mean()

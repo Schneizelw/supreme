@@ -136,8 +136,9 @@ class Crawler(metaclass=Metaclass):
         proxy = self.redis.get_highly_proxy()
         score = self.redis.get_score(proxy)
         if score != 100:
-            url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20193292073q8mu4k/9f7e2940160211e79ff07cd30abda612?returnType=2"  
-            url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20194145397Y7w7U/acc59198c5d911e7bcaf7cd30abda612?returnType=2"  
+            #url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20193292073q8mu4k/9f7e2940160211e79ff07cd30abda612?returnType=2"  
+            #url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20194145397Y7w7U/acc59198c5d911e7bcaf7cd30abda612?returnType=2"  
+            url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20194145397Y7w7U/715639d0fcdd11e6942200163e1a31c0?returnType=2"  
             html = self.get_html(url)
             print(html)
             if html:

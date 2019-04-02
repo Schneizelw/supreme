@@ -15,12 +15,11 @@ class RenthouseSpider(scrapy.Spider):
     """
     name = 'renthouse'
     cities = [
-        "sz", 
-        #"bj", "sh", "gz",
-        #"cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg",
+        #"sz", "bj", "sh", "gz",
+        "cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg",
         #"km", "dl", "xm", "hf", "fs", "fz", "hrb", "jn", "wz", "cc", "sjz", "changzhou", "nn", "gy", "nc",
-        #"nt", "jh", "xz", "ty", "jx", "yt", "hui", "bd", "taizhou", "zs", "sx", "lz", "gl", "liuzhou", 
-        #"bh", 
+        #"nt", "jh", "xz", "ty", "jx", "yt", "hui", "bd", "taizhou", "zs", "sx", "lz", "liuzhou", 
+        #"bh", "gl", "lz" 
     ]
     allowed_domains = ['lianjia.com']
     base_url = "http://{city}.lianjia.com/zufang"

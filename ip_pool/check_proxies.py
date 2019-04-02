@@ -36,7 +36,10 @@ class Check():
                             print("%s can be use 50 score" % proxy)
                     else:
                         print("1:Not valid code:%s decrease" % proxy)
-                        self.redis.decrease(proxy)
+                        if socore == 51:
+                           self.redis.delproxy(proxy)
+                        else:
+                            self.redis.decrease(proxy)
             except (TimeoutError, OSError, ServerDisconnectedError,ClientResponseError) as e:
                 print("2:Catch Error error:%s %s decrese" % (str(e),proxy))
                 self.redis.decrease(proxy)
