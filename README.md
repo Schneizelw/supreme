@@ -19,7 +19,7 @@
 ![](https://github.com/Schneizelw/supreme/blob/master/imgs/scrapy.png)
 
 - 数据流过程：
-&ensp;&ensp;&ensp;&ensp;Engine首先打开一个网站，获取初始url将此url发送给scheduler，然后scheduler调度url发送给engine。Engine获取url发送给downloader，期间经过downloader middlerwares的处理，downloder请求url获取response返回给engine，期间经过downloader middlerwares处理。Engine将该response发送给spider解析，期间经过spider middlerwares的处理，spider解析网页，如果结果是item则发送给engine，期间经过spider middler wares处理，如
+&ensp;&ensp;&ensp;&ensp;Engine首先打开一个网站，获取初始url将此url发送给scheduler，然后scheduler调度url发送给engine。Engine获取url发送给downloader，期间经过downloader middlerwares的处理，downloder请求url获取response返回给engine，期间经过downloader middlerwares处理。Engine将该response发送给spider解析，期间经过spider middlerwares的处理，spider解析网页，如果结果是item则发送给engine，期间经过spider middler wares处理，如果是新的request直接发送给request。Engine将spider返回的iem交给item pipelines处理，item pipeline将该item清洗过滤存入到数据库中。如果是新的request则发送给scheduler。
 
 ### docker部署scrapyd
 
