@@ -16,7 +16,7 @@
 - Spider Middlewares:处于Engine和Spider之间的钩子框架，用于加工engine给spider发送的response，以及处理spider发送给engine的item。
 - Item Pipeline: 处理engine传回的item数据，主要是清洗，整理过滤数据，以及数据入库。
 
-![](https://github.com/Schneizelw/supreme/imgs/scrapy.png)
+![](https://github.com/Schneizelw/supreme/blob/master/imgs/scrapy.png)
 
 - 数据流过程：
 &ensp;&ensp;&ensp;&ensp;Engine首先打开一个网站，获取初始url将此url发送给scheduler，然后scheduler调度url发送给engine。Engine获取url发送给downloader，期间经过downloader middlerwares的处理，downloder请求url获取response返回给engine，期间经过downloader middlerwares处理。Engine将该response发送给spider解析，期间经过spider middlerwares的处理，spider解析网页，如果结果是item则发送给engine，期间经过spider middler wares处理，如
