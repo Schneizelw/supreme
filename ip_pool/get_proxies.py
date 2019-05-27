@@ -77,8 +77,9 @@ class Crawler(metaclass=Metaclass):
             get kuaiproxy 
         """
         print("kuaidaili")
-        upper_limit = 0
+        upper_limit = 2
         url_kuai = self.urls["kuaiproxy"]
+        #生成需要爬取url的list列表
         url_list = [url_kuai.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
             print("[kuaiproxy]:\tcrawl url:%s" % url)
@@ -97,7 +98,7 @@ class Crawler(metaclass=Metaclass):
             get xiciproxy 
         """
         print("xici")
-        upper_limit = 0
+        upper_limit = 2
         url_xici = self.urls["xiciproxy"]
         url_list = [url_xici.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -117,7 +118,7 @@ class Crawler(metaclass=Metaclass):
             get 89proxy 
         """
         print("89proxy")
-        upper_limit = 0
+        upper_limit = 2
         url_89 = self.urls["89proxy"]
         url_list = [url_89.format(page) for page in range(1, upper_limit + 1)]
         for url in url_list:
@@ -136,9 +137,7 @@ class Crawler(metaclass=Metaclass):
         proxy = self.redis.get_highly_proxy()
         score = self.redis.get_score(proxy)
         if score != 100:
-            #url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20193292073q8mu4k/9f7e2940160211e79ff07cd30abda612?returnType=2"  
-            #url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20194145397Y7w7U/acc59198c5d911e7bcaf7cd30abda612?returnType=2"  
-            url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20194145397Y7w7U/715639d0fcdd11e6942200163e1a31c0?returnType=2"  
+            url = "http://api.xdaili.cn/xdaili-api//privateProxy/getDynamicIP/DD20194145397Y7w7U/34042aa4fff111e7bcaf7cd30abda612?returnType=2"  
             html = self.get_html(url)
             print(html)
             if html:

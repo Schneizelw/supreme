@@ -1,0 +1,5 @@
+ERROR:lml.utils:failed to import pyecharts_snapshot
+Traceback (most recent call last):
+  File "/root/supreme/server/venv/lib/python3.6/site-packages/lml/utils.py", line 43, in do_import
+    plugin_module = __import__(plugin_module_name)
+ModuleNotFoundError: No module named 'pyecharts_snapshot'

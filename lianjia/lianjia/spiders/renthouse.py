@@ -15,11 +15,10 @@ class RenthouseSpider(scrapy.Spider):
     """
     name = 'renthouse'
     cities = [
-        #"sz", "bj", "sh", "gz",
+        "sz", "bj", "sh", "gz",
         "cq", "cd", "hz", "wh", "su", "xa", "tj", "nj", "zz", "cs", "sy", "qd", "dg",
-        #"km", "dl", "xm", "hf", "fs", "fz", "hrb", "jn", "wz", "cc", "sjz", "changzhou", "nn", "gy", "nc",
-        #"nt", "jh", "xz", "ty", "jx", "yt", "hui", "bd", "taizhou", "zs", "sx", "lz", "liuzhou", 
-        #"bh", "gl", "lz" 
+        "km", "dl", "xm", "hf", "fs", "fz", "hrb", "jn", "wz", "cc", "sjz", "changzhou", "nn", "gy", "nc",
+        "nt", "jh", "xz", "ty", "jx", "yt", "hui", "bd", "taizhou", "zs", "sx", "lz", "liuzhou", "bh", "gl", 
     ]
     allowed_domains = ['lianjia.com']
     base_url = "http://{city}.lianjia.com/zufang"
@@ -50,8 +49,8 @@ class RenthouseSpider(scrapy.Spider):
         RP = "rp"
         city = response.meta["city"]
         zone_lis = response.css("#filter ul:nth-child(2) li")
-        zones = []
-        zones_chinese = []
+        zones = [] #所有地区的代码
+        zones_chinese = [] #所有地区的中文
         for index, li in enumerate(zone_lis):
             if index == 0:
                 continue
@@ -125,7 +124,7 @@ class RenthouseSpider(scrapy.Spider):
     
     def parse(self, response): 
         """
-            爬取数据
+            爬取数据基本是根据网页结构解析出我们所需要的数据
         """
         rent_house = RentHouseItem()
         zone = response.meta["zone"]

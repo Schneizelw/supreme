@@ -6,10 +6,11 @@ import os
 import sys
 import json
 import time
+import math
 import pandas as pd
 from pandas import DataFrame,Series
 from pyecharts import Geo,Map
-from house.models import RentHouse
+from house.models import RentHouse, NewHouse
 from django.http import HttpResponse,JsonResponse
 from django.shortcuts import render, HttpResponseRedirect
 
@@ -18,7 +19,7 @@ from django.shortcuts import render, HttpResponseRedirect
 #    reload(sys)
 #    sys.setdefaultencoding(default_encoding)
 
-EXPIRED = 86400
+EXPIRED = 8640000
 CITY_MAP = {
     "bj" : "北京",
     "sh" : "上海",
@@ -69,7 +70,6 @@ CITY_MAP = {
     "bh" : "北海",
 }
 
-
 def check_cache(filename):
     """
         check cache filename 
@@ -97,13 +97,26 @@ def get_cache(filename):
     data = json.loads(tmp)
     return data
 
+def query_newhouse(query_city):
+    data = []
+    res = NewHouse.objects(city=query_city)
+    for item in res:
+        tmp = {}
+        tmp["city"] = item.city
+        tmp["url"] = item.url
+        tmp["plan_info"] = item.plan_info
+        tmp["around_info"] = item.around_info
+        tmp["basic_info"] = item.basic_info
+        data.append(tmp)
+    return data
+
 def query_rent_count(filename):
     """
         query mongo to calculate the number of houses in each city
         return {"city" : num}
     """
     data = {}
-    res = RentHouse.objects.only('city')
+    res = RentHouse.objects.only()
     for item in res:
         city = item.city
         if city in data.keys():
@@ -115,7 +128,7 @@ def query_rent_count(filename):
     return data
 
 def clean_price(price):
-    # 有些房价的加个是一个区间 例如 4500-5000 那么去中间值
+    # 有些房价的加个是一个区间 例如 4500-5000 那么取中间值
     if isinstance(price, str):
         tmp = price.split("-")
         res = (int(tmp[0]) + int(tmp[1]))/2
@@ -125,7 +138,7 @@ def clean_price(price):
     if res > 1000000:
         return -1
     return res
-    
+
 def query_rent_avgprice(filename):
     """
         query mongo calculate the avg price of each city
@@ -235,54 +248,16 @@ def get_rent_avgzone():
     filename = "rent_avgzone.txt"
     rent_avgzone = get_data(filename)
     data = []
+    count = 0
     for k, v in rent_avgzone.items():
+        count += 1
         data.append({'name' : k,"value": v})
+        if count == 40:
+            break
     data = sorted(data, key=lambda x:x["value"],reverse=True)
     res = wrap_res(data)
     return res
     
-
-def render_rent_count(rent_count):
-    data = []
-    for city, count in rent_count.items():
-        tmp = (CITY_MAP[city], int(count))
-        data.append(tmp)
-    geo = Geo(
-        "test title",
-        title_color = "#fff",
-        title_pos = "center",
-        width = 1530,
-        height = 500,
-        background_color = "#FAEBD7",
-    )    
-    attr, value = geo.cast(data)
-    geo.add(
-        "",
-        attr,
-        value,
-        type = "scatter",
-        maptype= "china",
-        #symbol_size = 12,
-        border_color = "#111",
-        geo_normal_color = "#323c48",
-        geo_emphasis_color = "#2a333d",
-        geo_cities_coords = None,
-        is_roam = True,
-        visual_range = [0,50000],
-        visual_text_color = "#fff",
-        is_visualmap=True,
-    )
-    geo.render("./templates/china_rent_house.html")
-
-def get_echart_script():
-    fd = open("./templates/china_rent_house.html","r")
-    china_html = fd.read()
-    china_script = re.findall("<body>\n(.*?)</body>\n", china_html, re.S)
-    fd = open("./templates/main.html","r")
-    main_html = fd.read()
-    main_html  = main_html.replace("</body>\n", china_script[0] + "</body>\n")
-    return main_html
-
 def wrap_res(data):
     res= {
         "status_code" : 200,
@@ -305,11 +280,106 @@ def rentHouse(request):
     print(res)
     return JsonResponse(res)
 
+def get_rent_data(query_city):
+    """
+        query mongo find rent data
+    """
+    # [{name:xxx,area:xxxx,type:xxxx...},{},{}]
+    rent_data = []
+    res = RentHouse.objects(city=query_city)
+    for item in res:
+        if item.area is None:
+            continue
+        temp = {
+            "name" : item.name,
+            "area" : item.location,
+            "size" : item.area,
+            "type" : item.house_type,
+            "price" : clean_price(item.price),
+            "url" : item.url,
+        }
+        rent_data.append(temp)
+    # write the result to cache file
+    filename = "rent_data_" + query_city + ".txt"
+    fd = open('./cache/' + filename, "w", encoding="utf-8")
+    temp = {"data" : rent_data}
+    fd.write(json.dumps(temp))
+    return rent_data
+
+def sort_res(res, sort_type):
+    if sort_type == "1":
+        res = sorted(res, key=lambda x:int(x["size"].replace("㎡", "")),reverse=False)
+    elif sort_type == "2":
+        res = sorted(res, key=lambda x:int(x["size"].replace("㎡", "")),reverse=True)
+    elif sort_type == "3": 
+        res = sorted(res, key=lambda x:int(x["price"]), reverse=True)
+    elif sort_type == "4":
+        res = sorted(res, key=lambda x:int(x["price"]),reverse=False)
+    else:
+        pass
+    return res
+
+def rentData(request):
+    city = request.GET["city"]
+    page = int(request.GET["page"])
+    filename = "rent_data_" + city + ".txt"
+    if check_cache(filename):
+        # use cache
+        cache_data = get_cache(filename)
+        res = cache_data["data"]
+    else:
+        res = get_rent_data(city)
+    ct = len(res)
+    max_pages = math.ceil(ct/10)
+    print(page , max_pages)
+    if page > max_pages:
+        failed = {
+            "code" : 404,
+            "msg" : "no this page",
+        }
+        return JsonResponse(failed)
+    sort_type = request.GET["type"]
+    if sort_type != "":
+        res = sort_res(res, sort_type)
+    if page == max_pages:
+        res_data = res[(page-1)*10:]
+    else:
+        res_data = res[(page-1)*10:page*10]
+    data = {
+        "code" : 0,
+        "count" : ct,
+        "data" : res_data,
+    }
+    return JsonResponse(data)
+
+def newhouseData(request):
+    city = request.GET["city"]
+    page = int(request.GET["page"])
+    res = query_newhouse(city)
+    ct = len(res)
+    max_pages = math.ceil(ct/10)
+    if page > max_pages:
+        failed = {
+            "code" : 404,
+            "msg" : "no this page",
+        }
+        return JsonResponse(failed)
+    if page == max_pages:
+        res_data = res[(page-1)*10:]
+    else:
+        res_data = res[(page-1)*10:page*10]
+    data = {
+        "code" : 0,
+        "count" : ct,
+        "data" : res_data,
+    }
+    return JsonResponse(data)
+
 def home(request):
-    rent_count = get_rent_count()
-    rent_avgprice = get_rent_avgprice()
-    rent_avgzone = get_rent_avgzone()
-    render_rent_count(rent_count)
-    print(rent_avgzone)
-    html = get_echart_script()
-    return HttpResponse(html)
+    return render(request, "index.html")
+
+def rent(request):
+    return render(request, "rent_data.html")
+
+def newhouse(request):
+    return render(request, "newhouse_data.html")

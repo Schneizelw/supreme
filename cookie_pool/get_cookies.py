@@ -22,8 +22,8 @@ class Generator():
         self.login_url = data["login_url"]
         self.cookies_db = RedisClient('cookies', self.website)
         self.users_db = RedisClient('users', self.website)
-        #self.users_db.set("15320347357","123456wyq")
-        #self.users_db.set("15320343017","123456wyq")
+        self.users_db.set("15320347357","123456wyq")
+        self.users_db.set("15320343017","123456wyq")
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--window-size=1980,1980')

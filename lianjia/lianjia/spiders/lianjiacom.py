@@ -29,7 +29,6 @@ class LianjiacomSpider(Spider):
             print(self.lianjia_url.format(city=city, page=BEGIN))
             yield Request(
                 self.lianjia_url.format(city=city, page=BEGIN), 
-                #url = "http://httpbin.org/get",
                 meta={
                     "city" : city
                 },
@@ -43,13 +42,14 @@ class LianjiacomSpider(Spider):
         basic_info = BasicInfoItem()
         around_info = AroundInfoItem()
         page_id = response.meta["_id"]
-        new_house["_id"] = response.meta["city"]
-        new_house["city"] = page_id
+        new_house["_id"] = page_id
+        new_house["city"] = response.meta["city"]
         new_house["url"] = response.meta["url"]
         print(response.meta["url"])
         yield new_house
         # init basic_infoi
-        #print(response.data["html"])
+        with open("temp.txt", "w") as fd:
+            fd.write(response.data["html"])
         html = Selector(text=response.data["html"])
         tmp = html.css(".container .fl.l-txt a")
         basic_info["name"] = tmp[-2].css("a::text").extract_first()
@@ -104,13 +104,13 @@ class LianjiacomSpider(Spider):
     def parse_main(self, response): 
         city = response.meta["city"]
         XIANGQING = "xiangqing"
-        #args.proxy = "http://116.209.56.12:9999"
-        #assert(splash:wait(args.wait))
+        #禁止渲染图片 添加渲染速度
         lua_script = """
             function main(splash, args)
                 splash.images_enabled = false
                 local url = args.url
                 assert(splash:go(url))
+                assert(splash:wait(2))
                 return {
                     html=splash:html(),
                 }
@@ -123,6 +123,7 @@ class LianjiacomSpider(Spider):
                 url = self.base_url.format(city=city)
                 url = url + path + XIANGQING
                 page_id = path[8:-1]
+                #生成splash请求带有lua脚本
                 yield SplashRequest(
                     url, 
                     self.parse_single, 
@@ -159,4 +160,3 @@ class LianjiacomSpider(Spider):
                 callback=self.parse_main, 
                 dont_filter=False
             )
-

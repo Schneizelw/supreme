@@ -18,3 +18,15 @@ class RentHouse(Document):
     orientation = StringField()    # 朝向
     agency = StringField()         # 中介 总是链家(可扩展)
     tags = ListField()             # 标签
+
+class NewHouse(Document):
+    meta = {
+        'collection' : 'newHouse',
+    }
+    _id = StringField(required=True)
+    url = StringField()            # url
+    city = StringField()           # 城市
+    name = StringField()           # 名字
+    basic_info = DictField()       # 基本信息
+    plan_info = DictField()        # 规划信息
+    around_info = DictField()      # 配套信息

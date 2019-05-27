@@ -36,6 +36,7 @@ class Check():
                             print("%s can be use 50 score" % proxy)
                     else:
                         print("1:Not valid code:%s decrease" % proxy)
+                        #付费代理检测到是51分则直接删除
                         if socore == 51:
                            self.redis.delproxy(proxy)
                         else:

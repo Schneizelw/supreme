@@ -20,13 +20,6 @@ def get_lianjia_cookie():
     conn = get_conn("lianjia")
     return conn.get_cookie()
     
-@app.route("/qfang")
-def get_qfang_cookie():
-    """
-        get cookie
-    """
-    conn = get_conn("qfang")
-    return conn.get_cookie()
     
 
 

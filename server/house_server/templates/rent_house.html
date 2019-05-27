@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>SpiderHouse</title>
+  <link rel="stylesheet"  href="static/css/rent_house.css">
+  <!-- 引入 ECharts 文件 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts.min.js"></script>
+  <script type="text/javascript" src="http://gallery.echartsjs.com/dep/echarts/map/js/china.js"></script>
+  <!-- 引入工具库 -->
+  <script src="static/utils.js"></script>
+</head>
+
+<body>
+  <div class="header">
+    <div class="bd">
+      <a href="http://112.74.58.112:8053/" class="logo" title="spiderhouse">SpiderHouse</a>
+      <ul class="nav">
+        <li class="item">
+          <a href="http://112.74.58.112:8053/">首页</a>
+        </li>
+        <li class="item">
+          <a href="http://112.74.58.112:8053/renthouse">租房</a>
+        </li>
+        <li class="item">
+          <a href="http://112.74.58.112:8053/newhouse">新房</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="container">
+    <div class="mainWrap">
+      <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+      <div class="echarts" id="geo"></div>
+    </div>
+    <div class="mainWrap">
+      <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+      <div class="avgprice" id="bar"></div>
+    </div>
+	 <div class="mainWrap">
+      <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+      <div class="bintu" id="pie"></div>
+    </div>
+	 <div class="mainWrap">
+      <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+      <div class="zone" id="bar_zone"></div>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+    // GET http://112.74.58.112:8000/api/rentHouse?type=1 {status: 1, data: [{ name: '北京', value: 100 }]}
+    // 全国租房房源数量图
+    const geo = echarts.init(document.getElementById('geo'));
+	
+    let geoData = [];
+	var pieData = [];
+    const geoOption = {
+      backgroundColor: '#F8F8FF',
+      title: {
+        text: '租房房源数量',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: function (params) {
+          return params.name + ' : ' + params.value[2];
+        }
+      },
+      legend: {
+        orient: 'vertical',
+        left: 'left',
+        data: ['房源']
+      },
+      visualMap: {
+        min: 0,
+        max: 100000,
+        left: 'left',
+        top: 'bottom',
+        text: ['高', '低'],  // 文本，默认为数值文本
+        calculable: true,
+        inRange: {
+          color: ['#FFE4C4','#778899', '#000000', '#FF0000', '#8A2BE2','#FFB6C1']
+        }
+      },
+      geo: {
+        map: 'china',
+        roam: true,  // 允许滚轮缩放地图
+        label: {  // 地图上的文本标签
+          normal: {
+            show: false  // 是否在地图上显示省的名称
+          },
+          emphasis: {
+            show: true,
+            color: '#fff',
+          }
+        },
+        itemStyle: {  // 地图区域
+          normal: {  // 正常时
+            areaColor: '#FF6347',  // 区域背景颜色
+            borderColor: '#F0F8FF'    // 区域边框颜色
+          },
+          emphasis: {   // 高亮时
+            areaColor: '#1f6fb5'
+          }
+        }
+      },
+      series: [
+        {
+          name: '房源',
+          type: 'scatter',  // 散点（气泡）图
+          coordinateSystem: 'geo',  // 该系列使用的坐标系: 使用地理坐标系
+          data: null,  // 等待请求数据后填充
+		  symbolSize: 16
+        },
+      ]
+    };
+    
+
+    // 全国平均租房价排序图
+    const bar = echarts.init(document.getElementById('bar'));
+    let barData = []
+    //const colorList = ['#b03a5b', '#E7CAD4',"#B22222", "#FFA500","#ADFF2F","#7FFFAA"];
+	const colorList = gradient('#FFA500', '#000000', 50);
+    const barOption = {
+      backgroundColor: '#fff',
+      xAxis: {
+        type: 'category',
+        data: barData.map(item => item.name),
+        name: '城市',  // 坐标轴名称
+        axisLine: {
+          symbol: ['none', 'arrow']  // 坐标轴的箭头，起始点无箭头，终点有箭头
+        },
+        axisTick: {
+          alignWithLabel: true,  // 坐标轴刻度与label对其
+        },
+        axisLabel: {
+          interval: 0  // 强制显示所有label（所有城市）
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: '房租',
+        axisLine: {
+          symbol: ['none', 'arrow']  // 坐标轴的箭头，起始点无箭头，终点有箭头
+        }
+      },
+      series: [{
+        data: barData,
+        type: 'bar',
+        itemStyle: {  // 柱形颜色
+          color: (params) => colorList[params.dataIndex]
+        }
+      }]
+    };
+	bar.showLoading();  // 加载中
+	fetch('http://112.74.58.112:8000/api/rentHouse?type=2')
+      .then(response => {
+        return response.json();  // 将服务端返回的数据转成json
+      }).then(res => {
+        console.log(res);
+        if (Number(res.status_code) === 200) {
+          barData = res.data;
+          barOption.series[0].data = barData;  // 填充数据
+          bar.hideLoading();
+		  barOption.xAxis.data = barData.map(item => item.name);
+          bar.setOption(barOption);
+        }
+      })
+	
+	geo.showLoading();  // 加载中
+    fetch('http://112.74.58.112:8000/api/rentHouse?type=1')
+      .then(response => {
+        return response.json();  // 将服务端返回的数据转成json
+      }).then(res => {
+        // console.log(res);
+        if (Number(res.status_code) === 200) {
+          geoData = res.data;
+          geoOption.series[0].data = convertData(geoData);  // 填充数据
+          geo.hideLoading();
+          geo.setOption(geoOption);
+        }
+      })
+	const pie = echarts.init(document.getElementById('pie'));
+	const  pieOption = {
+        title : {
+            text: '某站点用户访问来源',
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+        },
+        series : [
+            {
+	    		data: pieData,
+                name: '访问来源',
+                type: 'pie',
+                radius : '55%',
+                center: ['50%', '60%'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+	pie.showLoading();  // 加载中
+	fetch('http://112.74.58.112:8000/api/rentHouse?type=1')
+	.then(response => {
+        return response.json();  // 将服务端返回的数据转成json
+    }).then(res => {
+        // console.log(res);
+        if (Number(res.status_code) === 200) {
+          pieData = res.data;
+          pieOption.series[0].data = pieData;  // 填充数据
+          pie.hideLoading();
+          pie.setOption(pieOption);
+        }
+    })
+	
+    // 区域租房价排序图
+	const bar_zone = echarts.init(document.getElementById('bar_zone'));
+    let barData_zone = []
+	const colorList_zone = gradient('#FFA500', '#000000', 50);
+    const barOption_zone = {
+      backgroundColor: '#fff',
+      xAxis: {
+        type: 'category',
+        data: barData_zone.map(item => item.name),
+        name: '城市',  // 坐标轴名称
+        axisLine: {
+          symbol: ['none', 'arrow']  // 坐标轴的箭头，起始点无箭头，终点有箭头
+        },
+        axisTick: {
+          alignWithLabel: true,  // 坐标轴刻度与label对其
+        },
+        axisLabel: {
+          interval: 0, // 强制显示所有label（所有城市）
+		  rotate:40,
+        },
+      },
+      yAxis: {
+        type: 'value',
+        name: '房租',
+        axisLine: {
+          symbol: ['none', 'arrow']  // 坐标轴的箭头，起始点无箭头，终点有箭头
+        }
+      },
+      series: [{
+        data: barData_zone,
+        type: 'bar',
+        itemStyle: {  // 柱形颜色
+          color: (params) => colorList_zone[params.dataIndex]
+        }
+      }]
+    };
+	bar_zone.showLoading();  // 加载中
+	fetch('http://112.74.58.112:8000/api/rentHouse?type=3')
+      .then(response => {
+        return response.json();  // 将服务端返回的数据转成json
+      }).then(res => {
+        console.log(res);
+        if (Number(res.status_code) === 200) {
+          barData_zone = res.data;
+          barOption_zone.series[0].data = barData_zone;  // 填充数据
+          bar_zone.hideLoading();
+		  barOption_zone.xAxis.data = barData_zone.map(item => item.name);
+          bar_zone.setOption(barOption_zone);
+        }
+      })
+  </script>
+</body>
+
+</html>
+

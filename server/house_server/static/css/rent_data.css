@@ -1,0 +1,92 @@
+@font-face {
+  font-family: 'rbicon';
+  src: url(chrome-extension://dipiagiiohfljcicegpgffpbnjmgjcnf/fonts/rbicon.woff2) format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  background-color: #F8F8FF;
+  margin: 0;
+}
+
+.header {
+  width: 100%;
+  background-color: #f78;
+}
+
+.header .bd {
+  margin: 0 auto;
+  padding: 0 3%;
+  height: 65px;
+  max-width: 1900px;
+}
+
+.nav {
+  margin-left: 20px;
+}
+
+.nav,
+.nav .item {
+  float: left !important;
+  height: 60px !important;
+}
+
+.nav .item {
+  position: relative !important;
+  width: 100px !important;
+}
+
+.logo {
+  float: left;
+  color: #fff;
+  font-size: 2pc;
+  line-height: 60px;
+}
+
+ol,
+ul {
+  list-style: none !important;
+}
+
+.nav a {
+  text-decoration: none !important;
+  color: #fff !important;
+  font-size: 18px !important;
+}
+
+
+.main {
+  position: absolute;
+  top: 65px;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+
+.flexCenter {
+  display: flex;
+  justify-content: center;
+}
+
+
+table {
+  background-color: #fff;
+  letter-spacing: 1px;
+  font-size: 18px;
+  border-collapse:collapse; 
+  text-align: center;
+}
+
+td {
+  padding: 10px 20px;
+  text-align: center;
+}
+
+.layui-form-item {
+  margin-top: 16px;
+  width: 400px;
+}
+
+
+
